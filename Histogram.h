@@ -38,12 +38,13 @@ typedef std::vector<BinValueType> HistogramType;
 
 /** Compute the histograms of each channel of an image, and concatentate them together to form
   * of a 1D histogram. */
+
 template <typename TImage>
 HistogramType Compute1DConcatenatedHistogramOfMultiChannelImage(
                 const TImage* image, const itk::ImageRegion<2>& region,
                 const unsigned int numberOfBinsPerDimension,
-                const TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
-                const TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax);
+                const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
+                const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax);
 
 /** Compute the histogram of a collection of values. */
 template <typename TValue>

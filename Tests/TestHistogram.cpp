@@ -5,7 +5,7 @@
 #include "itkImageRegionIterator.h"
 #include "itkVectorImage.h"
 
-static void TestCompute1DHistogramOfMultiChannelImage();
+static void TestCompute1DConcatenatedHistogramOfMultiChannelImage();
 
 static void TestScalarHistogram();
 
@@ -17,7 +17,7 @@ static void TestOutputHistogram();
 
 int main()
 {
-  TestCompute1DHistogramOfMultiChannelImage();
+  TestCompute1DConcatenatedHistogramOfMultiChannelImage();
   TestScalarHistogram();
   TestHistogramIntersection();
   TestWriteHistogram();
@@ -25,7 +25,7 @@ int main()
   return 0;
 }
 
-void TestCompute1DHistogramOfMultiChannelImage()
+void TestCompute1DConcatenatedHistogramOfMultiChannelImage()
 {
   typedef itk::Image<unsigned char> ImageType;
   ImageType::Pointer image = ImageType::New();
@@ -54,11 +54,13 @@ void TestCompute1DHistogramOfMultiChannelImage()
     ++imageIterator;
     }
 
-
+  ImageType::PixelType rangeMin = 0;
+  ImageType::PixelType rangeMax = 255;
+  
   unsigned int numberOfBins = 10;
-  Histogram::HistogramType histogram = Histogram::Compute1DHistogramOfMultiChannelImage(image.GetPointer(),
+  Histogram::HistogramType histogram = Histogram::Compute1DConcatenatedHistogramOfMultiChannelImage(image.GetPointer(),
                                                          image->GetLargestPossibleRegion(),
-                                                         numberOfBins);
+                                                         numberOfBins, rangeMin, rangeMax);
 
   Histogram::OutputHistogram(histogram);
 
@@ -93,6 +95,8 @@ void TestHistogramIntersection()
   histogram2.push_back(2);
   histogram2.push_back(4);
   float intersection = Histogram::HistogramIntersection(histogram1, histogram2);
+
+  std::cout << "intersection: " << intersection << std::endl;
 }
 
 void TestWriteHistogram()

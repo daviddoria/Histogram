@@ -4,4 +4,4 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 add_executable(TestHistogram TestHistogram.cpp)
-target_link_libraries(TestHistogram)
+target_link_libraries(TestHistogram ITKHelpers)

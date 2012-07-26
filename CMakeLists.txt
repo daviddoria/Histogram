@@ -13,9 +13,9 @@ if(UNIX)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
 endif(UNIX)
 
-if(NOT TARGET Helpers)
-  add_subdirectory(Helpers)
-  include_directories(${Helpers_includes})
+if(NOT TARGET ITKHelpers)
+  add_subdirectory(ITKHelpers)
+  include_directories(${ITKHelpers_includes})
 endif()
 
 # ITK

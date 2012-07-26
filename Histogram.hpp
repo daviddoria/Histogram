@@ -21,9 +21,6 @@
 
 #include "Histogram.h"
 
-// Custom
-#include "Helpers/Helpers.h"
-
 // STL
 #include <numeric> // for 'accumulate'
 
@@ -31,16 +28,19 @@
 #include "itkRegionOfInterestImageFilter.h"
 #include "itkVectorIndexSelectionCastImageFilter.h"
 
+// Submodules
+#include "ITKHelpers/ITKHelpers.h"
+
 namespace Histogram
 {
 
 template <typename TImage>
 std::vector<float> Compute1DConcatenatedHistogramOfMultiChannelImage(
-                      const FloatVectorImageType* image,
+                      const TImage* image,
                       const itk::ImageRegion<2>& region,
                       const unsigned int numberOfBinsPerDimensions,
-                      const TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
-                      const TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax)
+                      const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
+                      const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax)
 {
   // Compute the histogram for each channel separately
   HistogramType concatenatedHistograms;
@@ -48,8 +48,15 @@ std::vector<float> Compute1DConcatenatedHistogramOfMultiChannelImage(
   for(unsigned int channel = 0; channel < image->GetNumberOfComponentsPerPixel(); ++channel)
   {
     // Extract the channel
-    
-    HistogramType histogram(channelHistograms[0]->GetSize(0));
+    typedef itk::Image<typename TypeTraits<typename TImage::PixelType>::ComponentType, 2> ScalarImageType;
+    typename ScalarImageType::Pointer extractedChannel = ScalarImageType::New();
+    ITKHelpers::ExtractChannel(image, channel, extractedChannel.GetPointer());
+
+    std::vector<typename TImage::PixelType> pixelValues =
+          ITKHelpers::GetPixelValuesInRegion(extractedChannel.GetPointer(), region);
+
+    HistogramType histogram = Histogram::ScalarHistogram(pixelValues, numberOfBinsPerDimensions, rangeMin, rangeMax);
+
     concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
   }
 
