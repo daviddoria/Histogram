@@ -52,7 +52,7 @@ Histogram::HistogramType Compute1DConcatenatedHistogramOfMultiChannelImage(
     typename ScalarImageType::Pointer extractedChannel = ScalarImageType::New();
     ITKHelpers::ExtractChannel(image, channel, extractedChannel.GetPointer());
 
-    std::vector<typename TImage::PixelType> pixelValues =
+    std::vector<typename ScalarImageType::PixelType> pixelValues =
           ITKHelpers::GetPixelValuesInRegion(extractedChannel.GetPointer(), region);
 
     HistogramType histogram = Histogram::ScalarHistogram(pixelValues, numberOfBinsPerDimensions, rangeMin, rangeMax);

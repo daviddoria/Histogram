@@ -5,6 +5,9 @@
 #include "itkImageRegionIterator.h"
 #include "itkVectorImage.h"
 
+// Submodules
+#include "Helpers/TypeTraits.h"
+
 static void TestCompute1DConcatenatedHistogramOfMultiChannelImage();
 
 static void TestScalarHistogram();
@@ -30,7 +33,9 @@ int main()
 
 void TestCompute1DConcatenatedHistogramOfMultiChannelImage()
 {
-  typedef itk::Image<unsigned char> ImageType;
+  // Single channel
+  {
+  typedef itk::Image<unsigned char, 2> ImageType;
   ImageType::Pointer image = ImageType::New();
   ImageType::IndexType corner = {{0,0}};
 
@@ -67,6 +72,56 @@ void TestCompute1DConcatenatedHistogramOfMultiChannelImage()
 
   Histogram::OutputHistogram(histogram);
   std::cout << std::endl;
+  }
+
+  // Multi channel
+  {
+  typedef itk::VectorImage<unsigned char, 2> ImageType;
+  ImageType::Pointer image = ImageType::New();
+  ImageType::IndexType corner = {{0,0}};
+
+  ImageType::SizeType size = {{100,100}};
+
+  ImageType::RegionType region(corner, size);
+
+  image->SetRegions(region);
+  image->SetNumberOfComponentsPerPixel(3);
+  image->Allocate();
+
+  itk::ImageRegionIterator<ImageType> imageIterator(image,region);
+
+  while(!imageIterator.IsAtEnd())
+    {
+    ImageType::PixelType pixel(image->GetNumberOfComponentsPerPixel());
+    if(imageIterator.GetIndex()[0] < 70)
+      {
+      for(unsigned int i = 0; i < pixel.GetSize(); ++i)
+        {
+        pixel[i] = 255;
+        }
+      }
+    else
+      {
+      for(unsigned int i = 0; i < pixel.GetSize(); ++i)
+        {
+        pixel[i] = 0;
+        }
+      }
+    imageIterator.Set(pixel);
+    ++imageIterator;
+    }
+
+  TypeTraits<ImageType::PixelType>::ComponentType rangeMin = 0;
+  TypeTraits<ImageType::PixelType>::ComponentType rangeMax = 255;
+
+  unsigned int numberOfBinsPerComponent = 10;
+  Histogram::HistogramType histogram = Histogram::Compute1DConcatenatedHistogramOfMultiChannelImage(image.GetPointer(),
+                                                         image->GetLargestPossibleRegion(),
+                                                         numberOfBinsPerComponent, rangeMin, rangeMax);
+
+  Histogram::OutputHistogram(histogram);
+  std::cout << std::endl;
+  }
 }
 
 void TestScalarHistogram()
