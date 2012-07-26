@@ -34,6 +34,9 @@ std::vector<float> Compute1DHistogramOfMultiChannelImage(const TImage* image,
                                                          const itk::ImageRegion<2>& region,
                                                          const unsigned int numberOfBins);
 
+template <typename TValue>
+std::vector<float> ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
+                                   const TValue& rangeMin, const TValue& rangeMax);
 
 float HistogramIntersection(const std::vector<float>& histogram1, const std::vector<float>& histogram2);
 
