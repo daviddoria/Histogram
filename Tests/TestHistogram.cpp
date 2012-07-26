@@ -18,10 +18,10 @@ static void TestOutputHistogram();
 int main()
 {
   TestCompute1DConcatenatedHistogramOfMultiChannelImage();
-  TestScalarHistogram();
-  TestHistogramIntersection();
-  TestWriteHistogram();
-  TestOutputHistogram();
+//   TestScalarHistogram();
+//   TestHistogramIntersection();
+//   TestWriteHistogram();
+//   TestOutputHistogram();
   return 0;
 }
 
@@ -56,14 +56,14 @@ void TestCompute1DConcatenatedHistogramOfMultiChannelImage()
 
   ImageType::PixelType rangeMin = 0;
   ImageType::PixelType rangeMax = 255;
-  
+
   unsigned int numberOfBins = 10;
   Histogram::HistogramType histogram = Histogram::Compute1DConcatenatedHistogramOfMultiChannelImage(image.GetPointer(),
                                                          image->GetLargestPossibleRegion(),
                                                          numberOfBins, rangeMin, rangeMax);
 
   Histogram::OutputHistogram(histogram);
-
+  std::cout << std::endl;
 }
 
 void TestScalarHistogram()
@@ -81,6 +81,7 @@ void TestScalarHistogram()
                                                             rangeMin, rangeMax);
 
   Histogram::OutputHistogram(histogram);
+  std::cout << std::endl;
 }
 
 void TestHistogramIntersection()

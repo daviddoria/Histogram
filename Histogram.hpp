@@ -35,7 +35,7 @@ namespace Histogram
 {
 
 template <typename TImage>
-std::vector<float> Compute1DConcatenatedHistogramOfMultiChannelImage(
+Histogram::HistogramType Compute1DConcatenatedHistogramOfMultiChannelImage(
                       const TImage* image,
                       const itk::ImageRegion<2>& region,
                       const unsigned int numberOfBinsPerDimensions,
@@ -65,12 +65,12 @@ std::vector<float> Compute1DConcatenatedHistogramOfMultiChannelImage(
 
 
 template <typename TValue>
-std::vector<float> ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
+Histogram::HistogramType ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
                                    const TValue& rangeMin, const TValue& rangeMax)
 {
   // Count how many values fall in each bin. We store these counts as floats because sometimes we want to normalize the counts.
   // std::cout << "Create histogram with " << numberOfBins << " bins." << std::endl;
-  std::vector<float> bins(numberOfBins, 0);
+  Histogram::HistogramType bins(numberOfBins, 0);
 
   const float binWidth = (rangeMax - rangeMin) / static_cast<float>(numberOfBins);
 
@@ -81,25 +81,48 @@ std::vector<float> ScalarHistogram(const std::vector<TValue>& values, const unsi
 
   for(unsigned int i = 0; i < values.size(); ++i)
   {
+    // Handle the special case of the value being exactly equal to the top of the range.
+    // We cannot simply add epsilon fudge factors because in a standard case of uchar values (pixels),
+    // 255 is a valid value, and 255+epsilon overflows a uchar.
+    if(values[i] == rangeMax)
+    {
+      bins[bins.size() - 1]++; // Add 1 to the last bin
+      continue;
+    }
+
     int bin = (values[i] - rangeMin) / binWidth;
     if(bin < 0)
     {
       std::stringstream ss;
       ss << "Can't write to bin " << bin << "!" << std::endl;
       ss << "There are " << values.size() << " values." << std::endl;
-      ss << "Range min " << rangeMin << std::endl;
-      ss << "Range max " << rangeMax << std::endl;
-      ss << "values[i] (i = " << i << ") = " << values[i] << std::endl;
+      ss << "Range min " << static_cast<float>(rangeMin) << std::endl;
+      ss << "Range max " << static_cast<float>(rangeMax) << std::endl;
+      ss << "values[i] (i = " << i << ") = " << static_cast<float>(values[i]) << std::endl;
       ss << "binWidth " << binWidth << std::endl;
       throw std::runtime_error(ss.str());
     }
-    bins[bin]++;
+    else if(bin >= numberOfBins) // There are only (numberOfBins - 1) indexes since the bin ids start at 0
+    {
+      std::stringstream ss;
+      ss << "Can't write to bin " << bin << "!" << std::endl;
+      ss << "There are " << values.size() << " values." << std::endl;
+      ss << "Range min " << static_cast<float>(rangeMin) << std::endl;
+      ss << "Range max " << static_cast<float>(rangeMax) << std::endl;
+      ss << "values[i] (i = " << i << ") = " << static_cast<float>(values[i]) << std::endl;
+      ss << "binWidth " << binWidth << std::endl;
+      throw std::runtime_error(ss.str());
+    }
+    else // all is ok
+    {
+      bins[bin]++;
+    }
   }
 
   return bins;
 }
 
-float HistogramIntersection(const std::vector<float>& histogram1, const std::vector<float>& histogram2)
+float HistogramIntersection(const Histogram::HistogramType& histogram1, const Histogram::HistogramType& histogram2)
 {
   if(histogram1.size() != histogram2.size())
     {
@@ -127,7 +150,7 @@ float HistogramIntersection(const std::vector<float>& histogram1, const std::vec
   return normalizedIntersection;
 }
 
-void WriteHistogram(const std::vector<float>& histogram, const std::string& filename)
+void WriteHistogram(const Histogram::HistogramType& histogram, const std::string& filename)
 {
   std::ofstream fout(filename.c_str());
   for(unsigned int i = 0; i < histogram.size(); ++i)
