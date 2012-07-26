@@ -11,6 +11,8 @@ static void TestScalarHistogram();
 
 static void TestHistogramIntersection();
 
+static void TestHistogramDifference();
+
 static void TestWriteHistogram();
 
 static void TestOutputHistogram();
@@ -18,10 +20,11 @@ static void TestOutputHistogram();
 int main()
 {
   TestCompute1DConcatenatedHistogramOfMultiChannelImage();
-//   TestScalarHistogram();
-//   TestHistogramIntersection();
-//   TestWriteHistogram();
-//   TestOutputHistogram();
+  TestScalarHistogram();
+  TestHistogramDifference();
+  TestHistogramIntersection();
+  TestWriteHistogram();
+  TestOutputHistogram();
   return 0;
 }
 
@@ -82,6 +85,22 @@ void TestScalarHistogram()
 
   Histogram::OutputHistogram(histogram);
   std::cout << std::endl;
+}
+
+void TestHistogramDifference()
+{
+  Histogram::HistogramType histogram1;
+  histogram1.push_back(1);
+  histogram1.push_back(2);
+  histogram1.push_back(3);
+
+  Histogram::HistogramType histogram2;
+  histogram2.push_back(1);
+  histogram2.push_back(2);
+  histogram2.push_back(4);
+  float difference = Histogram::HistogramDifference(histogram1, histogram2);
+
+  std::cout << "difference: " << difference << std::endl;
 }
 
 void TestHistogramIntersection()

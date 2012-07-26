@@ -53,6 +53,8 @@ HistogramType ScalarHistogram(const std::vector<TValue>& values, const unsigned 
 
 float HistogramIntersection(const HistogramType& histogram1, const HistogramType& histogram2);
 
+float HistogramDifference(const HistogramType& histogram1, const HistogramType& histogram2);
+
 void WriteHistogram(const HistogramType& histogram, const std::string& filename);
 
 void OutputHistogram(const HistogramType& histogram);

@@ -102,7 +102,7 @@ Histogram::HistogramType ScalarHistogram(const std::vector<TValue>& values, cons
       ss << "binWidth " << binWidth << std::endl;
       throw std::runtime_error(ss.str());
     }
-    else if(bin >= numberOfBins) // There are only (numberOfBins - 1) indexes since the bin ids start at 0
+    else if(bin >= static_cast<int>(numberOfBins)) // There are only (numberOfBins - 1) indexes since the bin ids start at 0
     {
       std::stringstream ss;
       ss << "Can't write to bin " << bin << "!" << std::endl;
@@ -122,12 +122,29 @@ Histogram::HistogramType ScalarHistogram(const std::vector<TValue>& values, cons
   return bins;
 }
 
+float HistogramDifference(const HistogramType& histogram1, const HistogramType& histogram2)
+{
+  if(histogram1.size() != histogram2.size())
+    {
+    std::cerr << "Histograms must be the same size!" << std::endl;
+    return 0.0f;
+    }
+
+  float difference = 0.0f;
+  for(unsigned int bin = 0; bin < histogram1.size(); ++bin)
+    {
+    difference += fabs(static_cast<float>(histogram1[bin]) - static_cast<float>(histogram2[bin]));
+    }
+
+  return difference;
+}
+
 float HistogramIntersection(const Histogram::HistogramType& histogram1, const Histogram::HistogramType& histogram2)
 {
   if(histogram1.size() != histogram2.size())
     {
     std::cerr << "Histograms must be the same size!" << std::endl;
-    return 0;
+    return 0.0f;
     }
 
   float totalIntersection = 0.0f;
