@@ -34,22 +34,26 @@
 namespace Histogram
 {
 
-std::vector<float> Compute1DHistogramOfMultiChannelImage(const FloatVectorImageType* image, const itk::ImageRegion<2>& region, const unsigned int numberOfBins)
+template <typename TImage>
+std::vector<float> Compute1DConcatenatedHistogramOfMultiChannelImage(
+                      const FloatVectorImageType* image,
+                      const itk::ImageRegion<2>& region,
+                      const unsigned int numberOfBinsPerDimensions,
+                      const TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
+                      const TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax)
 {
   // Compute the histogram for each channel separately
-  std::vector<HistogramType::Pointer> channelHistograms = ComputeHistogramsOfRegionManual(image, region, numberOfBins);
-
-  std::vector<float> histogram(channelHistograms[0]->GetSize(0));
+  HistogramType concatenatedHistograms;
 
   for(unsigned int channel = 0; channel < image->GetNumberOfComponentsPerPixel(); ++channel)
-    {
-    for(unsigned int bin = 0; bin < channelHistograms[0]->GetSize(0); ++bin)
-      {
-      histogram.push_back(channelHistograms[channel]->GetFrequency(bin));
-      }
-    }
+  {
+    // Extract the channel
+    
+    HistogramType histogram(channelHistograms[0]->GetSize(0));
+    concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
+  }
 
-  return histogram;
+  return concatenatedHistograms;
 }
 
 
@@ -125,6 +129,14 @@ void WriteHistogram(const std::vector<float>& histogram, const std::string& file
     }
 
   fout.close();
+}
+
+void OutputHistogram(const HistogramType& histogram)
+{
+  for(unsigned int i = 0; i < histogram.size(); ++i)
+    {
+    std::cout << histogram[i] << " ";
+    }
 }
 
 } // end namespace

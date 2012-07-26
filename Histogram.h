@@ -26,22 +26,38 @@
 // ITK
 #include "itkImageRegion.h"
 
+// Submodules
+#include "Helpers/TypeTraits.h"
+
 namespace Histogram
 {
 
+typedef float BinValueType;
+
+typedef std::vector<BinValueType> HistogramType;
+
+/** Compute the histograms of each channel of an image, and concatentate them together to form
+  * of a 1D histogram. */
 template <typename TImage>
-std::vector<float> Compute1DHistogramOfMultiChannelImage(const TImage* image,
-                                                         const itk::ImageRegion<2>& region,
-                                                         const unsigned int numberOfBins);
+HistogramType Compute1DConcatenatedHistogramOfMultiChannelImage(
+                const TImage* image, const itk::ImageRegion<2>& region,
+                const unsigned int numberOfBinsPerDimension,
+                const TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
+                const TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax);
 
+/** Compute the histogram of a collection of values. */
 template <typename TValue>
-std::vector<float> ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
-                                   const TValue& rangeMin, const TValue& rangeMax);
+HistogramType ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
+                              const TValue& rangeMin, const TValue& rangeMax);
 
-float HistogramIntersection(const std::vector<float>& histogram1, const std::vector<float>& histogram2);
+float HistogramIntersection(const HistogramType& histogram1, const HistogramType& histogram2);
 
-void WriteHistogram(const std::vector<float>& histogram1, const std::string& filename);
+void WriteHistogram(const HistogramType& histogram, const std::string& filename);
+
+void OutputHistogram(const HistogramType& histogram);
 
 } // end namespace
+
+#include "Histogram.hpp"
 
 #endif
