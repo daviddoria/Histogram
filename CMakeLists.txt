@@ -16,6 +16,7 @@ endif()
 
 if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   set(Histogram_includes ${ITKHelpers_includes} ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+  message("Histogram submodule used from ${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
 
 # ITK
