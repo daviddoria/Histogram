@@ -29,7 +29,7 @@
 #include "itkVectorIndexSelectionCastImageFilter.h"
 
 // Submodules
-#include "ITKHelpers/ITKHelpers.h"
+#include <ITKHelpers/ITKHelpers.h>
 
 namespace Histogram
 {
