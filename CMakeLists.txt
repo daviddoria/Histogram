@@ -12,10 +12,11 @@ endif(UNIX)
 if(NOT TARGET ITKHelpers)
   add_subdirectory(ITKHelpers)
   include_directories(${ITKHelpers_includes})
+  set(Histogram_includes ${Histogram_includes} ${ITKHelpers_includes})
 endif()
 
 if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
-  set(Histogram_includes ${ITKHelpers_includes} ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+  set(Histogram_includes ${Histogram_includes} ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
   message("Histogram submodule used from ${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
 

@@ -18,8 +18,8 @@
 
 #include "Histograms.h"
 
-// Custom
-#include "Helpers.h"
+// Submodules
+#include <Helpers/Helpers.h>
 
 // STL
 #include <numeric> // for 'accumulate'

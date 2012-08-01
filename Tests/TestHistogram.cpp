@@ -6,7 +6,7 @@
 #include "itkVectorImage.h"
 
 // Submodules
-#include "Helpers/TypeTraits.h"
+#include <Helpers/TypeTraits.h>
 
 static void TestCompute1DConcatenatedHistogramOfMultiChannelImage();
 
