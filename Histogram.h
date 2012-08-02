@@ -41,20 +41,6 @@ public:
     * of a 1D histogram. */
 
   template <typename TImage>
-  static HistogramType Compute1DConcatenatedHistogramOfMultiChannelImage(
-                  const TImage* image, const itk::ImageRegion<2>& region,
-                  const unsigned int numberOfBinsPerDimension,
-                  const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
-                  const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax);
-
-  template <typename TImage>
-  static HistogramType Compute1DConcatenatedHistogramOfVectorImage(
-                  const TImage* image, const itk::ImageRegion<2>& region,
-                  const unsigned int numberOfBinsPerDimension,
-                  const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
-                  const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax);
-  
-  template <typename TImage>
   static HistogramType ComputeScalarImageHistogram(
                   const TImage* image, const itk::ImageRegion<2>& region,
                   const unsigned int numberOfBinsPerDimension,

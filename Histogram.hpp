@@ -36,55 +36,6 @@
 
 template <typename TBinValue>
 template <typename TImage>
-typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::Compute1DConcatenatedHistogramOfMultiChannelImage(
-                      const TImage* image,
-                      const itk::ImageRegion<2>& region,
-                      const unsigned int numberOfBinsPerDimensions,
-                      const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
-                      const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax)
-{
-  // This should ideally handle both VectorImage and Image<CovariantVector>
-}
-
-
-template <typename TBinValue>
-template <typename TImage>
-typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::Compute1DConcatenatedHistogramOfVectorImage(
-                      const TImage* image,
-                      const itk::ImageRegion<2>& region,
-                      const unsigned int numberOfBinsPerDimensions,
-                      const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
-                      const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax)
-{
-  // Compute the histogram for each channel separately
-  HistogramType concatenatedHistograms;
-
-  for(unsigned int channel = 0; channel < image->GetNumberOfComponentsPerPixel(); ++channel)
-  {
-    // Extract the channel
-    typedef itk::Image<typename TypeTraits<typename TImage::PixelType>::ComponentType, 2> ScalarImageType;
-
-//     typename ScalarImageType::Pointer extractedChannel = ScalarImageType::New();
-//     ITKHelpers::ExtractChannel(image, channel, extractedChannel.GetPointer());
-//
-//     std::vector<typename ScalarImageType::PixelType> pixelValues =
-//           ITKHelpers::GetPixelValuesInRegion(extractedChannel.GetPointer(), region);
-
-    typedef itk::VectorImageToImageAdaptor<typename ScalarImageType::PixelType, 2> ImageAdaptorType;
-    typename ImageAdaptorType::Pointer adaptor = ImageAdaptorType::New();
-    adaptor->SetExtractComponentIndex(channel);
-    adaptor->SetImage(const_cast<TImage*>(image));
-
-    HistogramType histogram = ComputeScalarImageHistogram(adaptor.GetPointer(), region, numberOfBinsPerDimensions, rangeMin, rangeMax);
-
-    concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
-  }
-
-  return concatenatedHistograms;
-}
-
-template <typename TBinValue>
-template <typename TImage>
 typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeScalarImageHistogram(
                       const TImage* image,
                       const itk::ImageRegion<2>& region,
@@ -141,12 +92,6 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageH
     // Extract the channel
     typedef itk::Image<typename TypeTraits<typename ImageType::PixelType>::ComponentType, 2> ScalarImageType;
 
-//     typename ScalarImageType::Pointer extractedChannel = ScalarImageType::New();
-//     ITKHelpers::ExtractChannel(image, channel, extractedChannel.GetPointer());
-//
-//     std::vector<typename ScalarImageType::PixelType> pixelValues =
-//           ITKHelpers::GetPixelValuesInRegion(extractedChannel.GetPointer(), region);
-
     typedef itk::NthElementImageAdaptor<ImageType, typename ScalarImageType::PixelType> ImageAdaptorType;
     typename ImageAdaptorType::Pointer adaptor = ImageAdaptorType::New();
     adaptor->SelectNthElement(channel);
@@ -179,12 +124,6 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageH
   {
     // Extract the channel
     typedef itk::Image<typename TypeTraits<typename ImageType::PixelType>::ComponentType, 2> ScalarImageType;
-
-//     typename ScalarImageType::Pointer extractedChannel = ScalarImageType::New();
-//     ITKHelpers::ExtractChannel(image, channel, extractedChannel.GetPointer());
-//
-//     std::vector<typename ScalarImageType::PixelType> pixelValues =
-//           ITKHelpers::GetPixelValuesInRegion(extractedChannel.GetPointer(), region);
 
     typedef itk::VectorImageToImageAdaptor<typename TypeTraits<typename ImageType::PixelType>::ComponentType, 2> ImageAdaptorType;
     typename ImageAdaptorType::Pointer adaptor = ImageAdaptorType::New();
@@ -264,8 +203,9 @@ float Histogram<TBinValue>::HistogramDifference(const HistogramType& histogram1,
   // assert(TBinValue is a signed type)
   if(histogram1.size() != histogram2.size())
     {
-    std::cerr << "Histograms must be the same size!" << std::endl;
-    return 0.0f;
+    std::stringstream ss;
+    ss << "Histograms must be the same size! histogram1 is " << histogram1.size() << " while histogram2 is " << histogram2.size();
+    throw std::runtime_error(ss.str());
     }
 
   //float difference = 0.0f;
