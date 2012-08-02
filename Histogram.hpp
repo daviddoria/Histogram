@@ -123,16 +123,19 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ScalarHistogr
 template <typename TBinValue>
 float Histogram<TBinValue>::HistogramDifference(const HistogramType& histogram1, const HistogramType& histogram2)
 {
+  // assert(TBinValue is a signed type)
   if(histogram1.size() != histogram2.size())
     {
     std::cerr << "Histograms must be the same size!" << std::endl;
     return 0.0f;
     }
 
-  float difference = 0.0f;
+  //float difference = 0.0f;
+  TBinValue difference = 0;
   for(unsigned int bin = 0; bin < histogram1.size(); ++bin)
     {
-    difference += fabs(static_cast<float>(histogram1[bin]) - static_cast<float>(histogram2[bin]));
+    //difference += fabs(static_cast<float>(histogram1[bin]) - static_cast<float>(histogram2[bin]));
+    difference += fabs(histogram1[bin] - histogram2[bin]);
     }
 
   return difference;
