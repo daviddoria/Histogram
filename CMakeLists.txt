@@ -19,11 +19,12 @@ endif()
 
 if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   set(Histogram_includes ${Histogram_includes} ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+  set(Histogram_libraries ${Histogram_libraries} ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
   message("Histogram submodule used from ${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
 
 # ITK
-FIND_PACKAGE(ITK REQUIRED ITKCommon ITKIOImageBase ITKIOPNG
+FIND_PACKAGE(ITK REQUIRED ITKCommon ITKIOImageBase ITKIOPNG ITKIOMeta
              ITKImageIntensity ITKImageFeature ITKMathematicalMorphology ITKBinaryMathematicalMorphology)
 INCLUDE(${ITK_USE_FILE})
 

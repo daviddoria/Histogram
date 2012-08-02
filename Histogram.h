@@ -26,6 +26,7 @@
 // ITK
 #include "itkImage.h"
 #include "itkImageRegion.h"
+#include "itkVectorImage.h"
 
 // Submodules
 #include "Helpers/TypeTraits.h"
@@ -63,6 +64,14 @@ public:
   template <typename TComponent, unsigned int Dimension>
   static HistogramType ComputeImageHistogram1D(
                   const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* image,
+                  const itk::ImageRegion<2>& region,
+                  const unsigned int numberOfBinsPerDimension,
+                  const TComponent& rangeMin,
+                  const TComponent& rangeMax);
+
+  template <typename TComponent>
+  static HistogramType ComputeImageHistogram1D(
+                  const itk::VectorImage<TComponent, 2>* image,
                   const itk::ImageRegion<2>& region,
                   const unsigned int numberOfBinsPerDimension,
                   const TComponent& rangeMin,
