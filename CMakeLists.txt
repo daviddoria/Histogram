@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(Histogram)
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # This is needed for shared_ptr and the trick using enable_if and
 # if_fundamental to allow scalars
@@ -13,6 +14,7 @@ if(NOT TARGET ITKHelpers)
   add_subdirectory(ITKHelpers)
   include_directories(${ITKHelpers_includes})
   set(Histogram_includes ${Histogram_includes} ${ITKHelpers_includes})
+  set(Histogram_libraries ${Histogram_libraries} ITKHelpers)
 endif()
 
 if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})

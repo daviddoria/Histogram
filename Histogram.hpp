@@ -25,6 +25,7 @@
 #include <numeric> // for 'accumulate'
 
 // ITK
+#include "itkNthElementImageAdaptor.h"
 #include "itkRegionOfInterestImageFilter.h"
 #include "itkVectorIndexSelectionCastImageFilter.h"
 
@@ -47,11 +48,42 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::Compute1DConc
   {
     // Extract the channel
     typedef itk::Image<typename TypeTraits<typename TImage::PixelType>::ComponentType, 2> ScalarImageType;
-    typename ScalarImageType::Pointer extractedChannel = ScalarImageType::New();
-    ITKHelpers::ExtractChannel(image, channel, extractedChannel.GetPointer());
 
-    std::vector<typename ScalarImageType::PixelType> pixelValues =
-          ITKHelpers::GetPixelValuesInRegion(extractedChannel.GetPointer(), region);
+//     typename ScalarImageType::Pointer extractedChannel = ScalarImageType::New();
+//     ITKHelpers::ExtractChannel(image, channel, extractedChannel.GetPointer());
+// 
+//     std::vector<typename ScalarImageType::PixelType> pixelValues =
+//           ITKHelpers::GetPixelValuesInRegion(extractedChannel.GetPointer(), region);
+
+    typedef itk::NthElementImageAdaptor<TImage, typename ScalarImageType::PixelType> ImageAdaptorType;
+    typename ImageAdaptorType::Pointer adaptor = ImageAdaptorType::New();
+    adaptor->SelectNthElement(channel);
+    adaptor->SetImage(const_cast<TImage*>(image));
+
+    HistogramType histogram = ComputeScalarImageHistogram(adaptor.GetPointer(), region, numberOfBinsPerDimensions, rangeMin, rangeMax);
+
+    concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
+  }
+
+  return concatenatedHistograms;
+}
+
+template <typename TBinValue>
+template <typename TImage>
+typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeScalarImageHistogram(
+                      const TImage* image,
+                      const itk::ImageRegion<2>& region,
+                      const unsigned int numberOfBinsPerDimensions,
+                      const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
+                      const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax)
+{
+  // Compute the histogram for each channel separately
+  HistogramType concatenatedHistograms;
+
+  for(unsigned int channel = 0; channel < image->GetNumberOfComponentsPerPixel(); ++channel)
+  {
+    std::vector<typename TImage::PixelType> pixelValues =
+          ITKHelpers::GetPixelValuesInRegion(image, region);
 
     HistogramType histogram = Histogram::ScalarHistogram(pixelValues, numberOfBinsPerDimensions, rangeMin, rangeMax);
 
@@ -59,6 +91,50 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::Compute1DConc
   }
 
   return concatenatedHistograms;
+}
+
+// Can't do this, must decide at compile time
+// template <typename TBinValue>
+// template <typename TImage>
+// typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageHistogram1D(
+//                       const TImage* image,
+//                       const itk::ImageRegion<2>& region,
+//                       const unsigned int numberOfBinsPerDimensions,
+//                       const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
+//                       const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax)
+// {
+//   if(image->GetNumberOfComponentsPerPixel() == 1)
+//   {
+//     return ComputeScalarImageHistogram(image, region, numberOfBinsPerDimensions, rangeMin, rangeMax);
+//   }
+//   else
+//   {
+//     return Compute1DConcatenatedHistogramOfMultiChannelImage(image, region, numberOfBinsPerDimensions, rangeMin, rangeMax);
+//   }
+// }
+
+template <typename TBinValue>
+template <typename TScalarImage>
+typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageHistogram1D(
+                      const TScalarImage* image,
+                      const itk::ImageRegion<2>& region,
+                      const unsigned int numberOfBinsPerDimensions,
+                      const typename TypeTraits<typename TScalarImage::PixelType>::ComponentType& rangeMin,
+                      const typename TypeTraits<typename TScalarImage::PixelType>::ComponentType& rangeMax)
+{
+  return ComputeScalarImageHistogram(image, region, numberOfBinsPerDimensions, rangeMin, rangeMax);
+}
+
+template <typename TBinValue>
+template <typename TComponent, unsigned int Dimension>
+typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageHistogram1D(
+                      const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* image,
+                      const itk::ImageRegion<2>& region,
+                      const unsigned int numberOfBinsPerDimensions,
+                      const TComponent& rangeMin,
+                      const TComponent& rangeMax)
+{
+  return Compute1DConcatenatedHistogramOfMultiChannelImage(image, region, numberOfBinsPerDimensions, rangeMin, rangeMax);
 }
 
 template <typename TBinValue>

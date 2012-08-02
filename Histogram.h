@@ -24,6 +24,7 @@
 #include <vector>
 
 // ITK
+#include "itkImage.h"
 #include "itkImageRegion.h"
 
 // Submodules
@@ -44,6 +45,28 @@ public:
                   const unsigned int numberOfBinsPerDimension,
                   const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
                   const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax);
+
+  template <typename TImage>
+  static HistogramType ComputeScalarImageHistogram(
+                  const TImage* image, const itk::ImageRegion<2>& region,
+                  const unsigned int numberOfBinsPerDimension,
+                  const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
+                  const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax);
+  
+  template <typename TScalarImage>
+  static HistogramType ComputeImageHistogram1D(
+                  const TScalarImage* image, const itk::ImageRegion<2>& region,
+                  const unsigned int numberOfBinsPerDimension,
+                  const typename TypeTraits<typename TScalarImage::PixelType>::ComponentType& rangeMin,
+                  const typename TypeTraits<typename TScalarImage::PixelType>::ComponentType& rangeMax);
+
+  template <typename TComponent, unsigned int Dimension>
+  static HistogramType ComputeImageHistogram1D(
+                  const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* image,
+                  const itk::ImageRegion<2>& region,
+                  const unsigned int numberOfBinsPerDimension,
+                  const TComponent& rangeMin,
+                  const TComponent& rangeMax);
 
   /** Compute the histogram of a collection of values. */
   template <typename TValue>

@@ -66,17 +66,70 @@ void TestCompute1DConcatenatedHistogramOfMultiChannelImage()
   ImageType::PixelType rangeMax = 255;
 
   unsigned int numberOfBins = 10;
-  Histogram::HistogramType histogram = Histogram::Compute1DConcatenatedHistogramOfMultiChannelImage(image.GetPointer(),
+  typedef int BinValueType;
+  typedef Histogram<BinValueType>::HistogramType HistogramType;
+
+  HistogramType histogram = Histogram<BinValueType>::ComputeImageHistogram1D(image.GetPointer(),
                                                          image->GetLargestPossibleRegion(),
                                                          numberOfBins, rangeMin, rangeMax);
 
-  Histogram::OutputHistogram(histogram);
+  Histogram<BinValueType>::OutputHistogram(histogram);
   std::cout << std::endl;
   }
 
-  // Multi channel
+//   // Multi channel VectorImage
+//   {
+//   typedef itk::VectorImage<unsigned char, 2> ImageType;
+//   ImageType::Pointer image = ImageType::New();
+//   ImageType::IndexType corner = {{0,0}};
+// 
+//   ImageType::SizeType size = {{100,100}};
+// 
+//   ImageType::RegionType region(corner, size);
+// 
+//   image->SetRegions(region);
+//   image->SetNumberOfComponentsPerPixel(3);
+//   image->Allocate();
+// 
+//   itk::ImageRegionIterator<ImageType> imageIterator(image,region);
+// 
+//   while(!imageIterator.IsAtEnd())
+//     {
+//     ImageType::PixelType pixel(image->GetNumberOfComponentsPerPixel());
+//     if(imageIterator.GetIndex()[0] < 70)
+//       {
+//       for(unsigned int i = 0; i < pixel.GetSize(); ++i)
+//         {
+//         pixel[i] = 255;
+//         }
+//       }
+//     else
+//       {
+//       for(unsigned int i = 0; i < pixel.GetSize(); ++i)
+//         {
+//         pixel[i] = 0;
+//         }
+//       }
+//     imageIterator.Set(pixel);
+//     ++imageIterator;
+//     }
+// 
+//   TypeTraits<ImageType::PixelType>::ComponentType rangeMin = 0;
+//   TypeTraits<ImageType::PixelType>::ComponentType rangeMax = 255;
+// 
+//   unsigned int numberOfBinsPerComponent = 10;
+//   typedef int BinValueType;
+//   Histogram<BinValueType>::HistogramType histogram = Histogram<BinValueType>::Compute1DConcatenatedHistogramOfMultiChannelImage(image.GetPointer(),
+//                                                          image->GetLargestPossibleRegion(),
+//                                                          numberOfBinsPerComponent, rangeMin, rangeMax);
+// 
+//   Histogram<BinValueType>::OutputHistogram(histogram);
+//   std::cout << std::endl;
+//   }
+
+  // Multi channel Image<CovariantVector>
   {
-  typedef itk::VectorImage<unsigned char, 2> ImageType;
+  typedef itk::Image<itk::CovariantVector<unsigned char, 3>, 2> ImageType;
   ImageType::Pointer image = ImageType::New();
   ImageType::IndexType corner = {{0,0}};
 
@@ -85,7 +138,6 @@ void TestCompute1DConcatenatedHistogramOfMultiChannelImage()
   ImageType::RegionType region(corner, size);
 
   image->SetRegions(region);
-  image->SetNumberOfComponentsPerPixel(3);
   image->Allocate();
 
   itk::ImageRegionIterator<ImageType> imageIterator(image,region);
@@ -95,14 +147,14 @@ void TestCompute1DConcatenatedHistogramOfMultiChannelImage()
     ImageType::PixelType pixel(image->GetNumberOfComponentsPerPixel());
     if(imageIterator.GetIndex()[0] < 70)
       {
-      for(unsigned int i = 0; i < pixel.GetSize(); ++i)
+      for(unsigned int i = 0; i < pixel.GetNumberOfComponents(); ++i)
         {
         pixel[i] = 255;
         }
       }
     else
       {
-      for(unsigned int i = 0; i < pixel.GetSize(); ++i)
+      for(unsigned int i = 0; i < pixel.GetNumberOfComponents(); ++i)
         {
         pixel[i] = 0;
         }
@@ -115,11 +167,12 @@ void TestCompute1DConcatenatedHistogramOfMultiChannelImage()
   TypeTraits<ImageType::PixelType>::ComponentType rangeMax = 255;
 
   unsigned int numberOfBinsPerComponent = 10;
-  Histogram::HistogramType histogram = Histogram::Compute1DConcatenatedHistogramOfMultiChannelImage(image.GetPointer(),
+  typedef int BinValueType;
+  Histogram<BinValueType>::HistogramType histogram = Histogram<BinValueType>::ComputeImageHistogram1D(image.GetPointer(),
                                                          image->GetLargestPossibleRegion(),
                                                          numberOfBinsPerComponent, rangeMin, rangeMax);
 
-  Histogram::OutputHistogram(histogram);
+  Histogram<BinValueType>::OutputHistogram(histogram);
   std::cout << std::endl;
   }
 }
@@ -135,61 +188,67 @@ void TestScalarHistogram()
   unsigned int numberOfBins = 5;
   ValueType rangeMin = 0.0f;
   ValueType rangeMax = 4.0f;
-  std::vector<float> histogram = Histogram::ScalarHistogram(values, numberOfBins,
+
+  typedef int BinValueType;
+  Histogram<BinValueType>::HistogramType histogram = Histogram<BinValueType>::ScalarHistogram(values, numberOfBins,
                                                             rangeMin, rangeMax);
 
-  Histogram::OutputHistogram(histogram);
+  Histogram<BinValueType>::OutputHistogram(histogram);
   std::cout << std::endl;
 }
 
 void TestHistogramDifference()
 {
-  Histogram::HistogramType histogram1;
+  typedef int BinValueType;
+  Histogram<BinValueType>::HistogramType histogram1;
   histogram1.push_back(1);
   histogram1.push_back(2);
   histogram1.push_back(3);
 
-  Histogram::HistogramType histogram2;
+  Histogram<BinValueType>::HistogramType histogram2;
   histogram2.push_back(1);
   histogram2.push_back(2);
   histogram2.push_back(4);
-  float difference = Histogram::HistogramDifference(histogram1, histogram2);
+  float difference = Histogram<BinValueType>::HistogramDifference(histogram1, histogram2);
 
   std::cout << "difference: " << difference << std::endl;
 }
 
 void TestHistogramIntersection()
 {
-  Histogram::HistogramType histogram1;
+  typedef int BinValueType;
+  Histogram<BinValueType>::HistogramType histogram1;
   histogram1.push_back(1);
   histogram1.push_back(2);
   histogram1.push_back(3);
 
-  Histogram::HistogramType histogram2;
+  Histogram<BinValueType>::HistogramType histogram2;
   histogram2.push_back(1);
   histogram2.push_back(2);
   histogram2.push_back(4);
-  float intersection = Histogram::HistogramIntersection(histogram1, histogram2);
+  float intersection = Histogram<BinValueType>::HistogramIntersection(histogram1, histogram2);
 
   std::cout << "intersection: " << intersection << std::endl;
 }
 
 void TestWriteHistogram()
 {
-  Histogram::HistogramType histogram;
+  typedef int BinValueType;
+  Histogram<BinValueType>::HistogramType histogram;
   histogram.push_back(1);
   histogram.push_back(2);
   histogram.push_back(3);
 
-  Histogram::WriteHistogram(histogram, "histogram.txt");
+  Histogram<BinValueType>::WriteHistogram(histogram, "histogram.txt");
 }
 
 void TestOutputHistogram()
 {
-  Histogram::HistogramType histogram;
+  typedef int BinValueType;
+  Histogram<BinValueType>::HistogramType histogram;
   histogram.push_back(1);
   histogram.push_back(2);
   histogram.push_back(3);
 
-  Histogram::OutputHistogram(histogram);
+  Histogram<BinValueType>::OutputHistogram(histogram);
 }
