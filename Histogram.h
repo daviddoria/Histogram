@@ -47,6 +47,13 @@ public:
                   const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax);
 
   template <typename TImage>
+  static HistogramType Compute1DConcatenatedHistogramOfVectorImage(
+                  const TImage* image, const itk::ImageRegion<2>& region,
+                  const unsigned int numberOfBinsPerDimension,
+                  const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
+                  const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax);
+  
+  template <typename TImage>
   static HistogramType ComputeScalarImageHistogram(
                   const TImage* image, const itk::ImageRegion<2>& region,
                   const unsigned int numberOfBinsPerDimension,
@@ -67,6 +74,15 @@ public:
                   const unsigned int numberOfBinsPerDimension,
                   const TComponent& rangeMin,
                   const TComponent& rangeMax);
+
+
+  template <typename TComponent>
+  static HistogramType ComputeImageHistogram1D(
+                        const itk::VectorImage<TComponent, 2>* image,
+                        const itk::ImageRegion<2>& region,
+                        const unsigned int numberOfBinsPerDimensions,
+                        const TComponent& rangeMin,
+                        const TComponent& rangeMax);
 
   /** Compute the histogram of a collection of values. */
   template <typename TValue>
