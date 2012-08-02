@@ -29,37 +29,36 @@
 // Submodules
 #include "Helpers/TypeTraits.h"
 
-namespace Histogram
+template <typename TBinValue>
+class Histogram
 {
+public:
+  typedef std::vector<TBinValue> HistogramType;
 
-typedef float BinValueType;
+  /** Compute the histograms of each channel of an image, and concatentate them together to form
+    * of a 1D histogram. */
 
-typedef std::vector<BinValueType> HistogramType;
+  template <typename TImage>
+  static HistogramType Compute1DConcatenatedHistogramOfMultiChannelImage(
+                  const TImage* image, const itk::ImageRegion<2>& region,
+                  const unsigned int numberOfBinsPerDimension,
+                  const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
+                  const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax);
 
-/** Compute the histograms of each channel of an image, and concatentate them together to form
-  * of a 1D histogram. */
+  /** Compute the histogram of a collection of values. */
+  template <typename TValue>
+  static HistogramType ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
+                                const TValue& rangeMin, const TValue& rangeMax);
 
-template <typename TImage>
-HistogramType Compute1DConcatenatedHistogramOfMultiChannelImage(
-                const TImage* image, const itk::ImageRegion<2>& region,
-                const unsigned int numberOfBinsPerDimension,
-                const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
-                const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax);
+  static float HistogramIntersection(const HistogramType& histogram1, const HistogramType& histogram2);
 
-/** Compute the histogram of a collection of values. */
-template <typename TValue>
-HistogramType ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
-                              const TValue& rangeMin, const TValue& rangeMax);
+  static float HistogramDifference(const HistogramType& histogram1, const HistogramType& histogram2);
 
-float HistogramIntersection(const HistogramType& histogram1, const HistogramType& histogram2);
+  static void WriteHistogram(const HistogramType& histogram, const std::string& filename);
 
-float HistogramDifference(const HistogramType& histogram1, const HistogramType& histogram2);
+  static void OutputHistogram(const HistogramType& histogram);
 
-void WriteHistogram(const HistogramType& histogram, const std::string& filename);
-
-void OutputHistogram(const HistogramType& histogram);
-
-} // end namespace
+};
 
 #include "Histogram.hpp"
 
