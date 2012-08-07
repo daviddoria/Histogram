@@ -80,6 +80,7 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageH
                       const TComponent& rangeMin,
                       const TComponent& rangeMax)
 {
+  assert(image);
   //return Compute1DConcatenatedHistogramOfMultiChannelImage(image, region, numberOfBinsPerDimensions, rangeMin, rangeMax);
 
   typedef itk::Image<itk::CovariantVector<TComponent, Dimension>, 2> ImageType;
