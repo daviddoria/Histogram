@@ -24,9 +24,12 @@ if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
 # ITK
-FIND_PACKAGE(ITK REQUIRED ITKCommon ITKIOImageBase ITKIOPNG ITKIOMeta
-             ITKImageIntensity ITKImageFeature ITKMathematicalMorphology ITKBinaryMathematicalMorphology)
-INCLUDE(${ITK_USE_FILE})
+if(NOT ITK_FOUND)
+  FIND_PACKAGE(ITK REQUIRED ITKCommon ITKIOImageBase ITKIOPNG ITKIOMeta
+                            ITKImageIntensity ITKImageFeature ITKMathematicalMorphology
+                            ITKBinaryMathematicalMorphology)
+  INCLUDE(${ITK_USE_FILE})
+endif()
 
 #add_library(Histogram)
 add_custom_target(Histogram Histogram.h)
