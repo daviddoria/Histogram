@@ -75,6 +75,7 @@ public:
   static HistogramType ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
                                 const TValue& rangeMin, const TValue& rangeMax);
 
+  // M. J. Swain and D. H. Ballard. "Color Indexing." IJCV 7(1):11-32 November 1991
   static float HistogramIntersection(const HistogramType& histogram1, const HistogramType& histogram2);
 
   static float HistogramDifference(const HistogramType& histogram1, const HistogramType& histogram2);
