@@ -16,8 +16,8 @@
  *
  *=========================================================================*/
 
-#ifndef MaskedHistogram_H
-#define MaskedHistogram_H
+#ifndef MaskedHistogram_HPP
+#define MaskedHistogram_HPP
 
 #include "MaskedHistogram.h"
 
@@ -27,33 +27,44 @@ namespace MaskedHistogram
 template <typename TComponent>
 Histogram<int>::HistogramType ComputeMaskedImageHistogram1D(
                 const itk::VectorImage<TComponent, 2>* image,
-                const itk::ImageRegion<2>& region,
+                const itk::ImageRegion<2>& imageRegion,
                 const Mask* const mask, const itk::ImageRegion<2>& maskRegion,
                 const unsigned int numberOfBinsPerDimension,
                 const TComponent& rangeMin,
                 const TComponent& rangeMax)
 {
   // For VectorImage, we must use VectorImageToImageAdaptor
-  std::vector<itk::Index<2> > validIndices = mask->GetValidPixelsInRegion(maskRegion);
+
+  typedef itk::VectorImage<TComponent, 2> ImageType;
+  typedef itk::Image<TComponent, 2> ScalarImageType;
+
+  std::vector<itk::Index<2> > validMaskIndices = mask->GetValidPixelsInRegion(maskRegion);
+
+  // Compute the corresponding locations in the imageRegion
+  std::vector<itk::Index<2> > validImageIndices(validMaskIndices.size());
+  itk::Offset<2> maskRegionToImageRegionOffset = imageRegion.GetIndex() - maskRegion.GetIndex(); // The offset from the maskRegion to the imageRegion
+  for(size_t i = 0; i < validMaskIndices.size(); ++i)
+  {
+    validImageIndices[i] = validMaskIndices[i] + maskRegionToImageRegionOffset;
+  }
 
   Histogram<int>::HistogramType concatenatedHistograms;
 
   for(unsigned int channel = 0; channel < image->GetNumberOfComponentsPerPixel(); ++channel)
   {
     // Extract the channel
-    typedef itk::Image<typename TypeTraits<typename ImageType::PixelType>::ComponentType, 2> ScalarImageType;
 
-    typedef itk::VectorImageToImageAdaptor<typename TypeTraits<typename ImageType::PixelType>::ComponentType, 2> ImageAdaptorType;
+    typedef itk::VectorImageToImageAdaptor<TComponent, 2> ImageAdaptorType;
     typename ImageAdaptorType::Pointer adaptor = ImageAdaptorType::New();
     adaptor->SetExtractComponentIndex(channel);
     adaptor->SetImage(const_cast<ImageType*>(image));
 
     // Get this channels masked scalar values
     std::vector<typename ScalarImageType::PixelType> validPixels =
-        ITKHelpers::GetPixelValues(adaptor.GetPointer(), validIndices);
+        ITKHelpers::GetPixelValues(adaptor.GetPointer(), validImageIndices);
 
     // Compute the histogram of the scalar values
-    HistogramType histogram = ScalarHistogram(validPixels, numberOfBinsPerDimensions, rangeMin, rangeMax);
+    Histogram<int>::HistogramType histogram = Histogram<int>::ScalarHistogram(validPixels, numberOfBinsPerDimension, rangeMin, rangeMax);
 
     concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
   }
@@ -61,12 +72,49 @@ Histogram<int>::HistogramType ComputeMaskedImageHistogram1D(
   return concatenatedHistograms;
 }
 
-template <typename TImage, typename TMask>
-Histogram<int> ComputeMaskedImage1DHistogram(const TImage* const image, const itk::ImageRegion<2>& imageRegion,
-                                               const Mask* const mask, const itk::ImageRegion<2>& maskRegion,
-                                               const unsigned int numberOfBins, const typename TImage::PixelType& rangeMin, const typename TImage::PixelType& rangeMax)
+template <typename TComponent, unsigned int Dimension>
+Histogram<int>::HistogramType ComputeMaskedImage1DHistogram
+    (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
+     const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBinsPerDimension,
+     const TComponent& rangeMin, const TComponent& rangeMax)
 {
-  throw std::runtime_error("ComputeMaskedImage1DHistogram is not yet implemented for generic image types.!")
+  // For Image<CovariantVector>, we must use NthElementImageAdaptor
+
+  typedef itk::Image<itk::CovariantVector<TComponent, Dimension>, 2> ImageType;
+  typedef itk::Image<TComponent, 2> ScalarImageType;
+
+  std::vector<itk::Index<2> > validMaskIndices = mask->GetValidPixelsInRegion(maskRegion);
+
+  // Compute the corresponding locations in the imageRegion
+  std::vector<itk::Index<2> > validImageIndices(validMaskIndices.size());
+  itk::Offset<2> maskRegionToImageRegionOffset = imageRegion.GetIndex() - maskRegion.GetIndex(); // The offset from the maskRegion to the imageRegion
+  for(size_t i = 0; i < validMaskIndices.size(); ++i)
+  {
+    validImageIndices[i] = validMaskIndices[i] + maskRegionToImageRegionOffset;
+  }
+
+  Histogram<int>::HistogramType concatenatedHistograms;
+
+  for(unsigned int channel = 0; channel < Dimension; ++channel)
+  {
+    // Extract the channel
+
+    typedef itk::NthElementImageAdaptor<ImageType, typename ScalarImageType::PixelType> ImageAdaptorType;
+    typename ImageAdaptorType::Pointer adaptor = ImageAdaptorType::New();
+    adaptor->SelectNthElement(channel);
+    adaptor->SetImage(const_cast<ImageType*>(image));
+
+    // Get this channels masked scalar values
+    std::vector<typename ScalarImageType::PixelType> validPixels =
+        ITKHelpers::GetPixelValues(adaptor.GetPointer(), validImageIndices);
+
+    // Compute the histogram of the scalar values
+    Histogram<int>::HistogramType histogram = Histogram<int>::ScalarHistogram(validPixels, numberOfBinsPerDimension, rangeMin, rangeMax);
+
+    concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
+  }
+
+  return concatenatedHistograms;
 }
 
 } // end namespace

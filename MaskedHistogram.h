@@ -26,12 +26,23 @@ namespace MaskedHistogram
 /** This function computes the histogram of valid pixels (according to 'mask') in an image.
   * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
   * a target mask to a source patch. */
-template <typename TImage, typename TMask>
+template <typename TComponent>
 Histogram<int>::HistogramType ComputeMaskedImage1DHistogram
-    (const TImage* image, const itk::ImageRegion<2>& imageRegion,
-     Mask* mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
-     const typename TImage::PixelType& rangeMin, const typename TImage::PixelType& rangeMax);
+    (const itk::VectorImage<TComponent, 2>* const image, const itk::ImageRegion<2>& imageRegion,
+     const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
+     const TComponent& rangeMin, const TComponent& rangeMax);
+
+/** This function computes the histogram of valid pixels (according to 'mask') in an image.
+  * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
+  * a target mask to a source patch. */
+template <typename TComponent, unsigned int Dimension>
+Histogram<int>::HistogramType ComputeMaskedImage1DHistogram
+    (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
+     const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
+     const TComponent& rangeMin, const TComponent& rangeMax);
 
 }
+
+#include "MaskedHistogram.hpp"
 
 #endif
