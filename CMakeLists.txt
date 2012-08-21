@@ -10,25 +10,27 @@ if(UNIX)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
 endif(UNIX)
 
-if(NOT TARGET ITKHelpers)
-  add_subdirectory(ITKHelpers)
-  include_directories(${ITKHelpers_includes})
-  set(Histogram_includes ${Histogram_includes} ${ITKHelpers_includes})
-  set(Histogram_libraries ${Histogram_libraries} ITKHelpers)
-endif()
-
-if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
-  set(Histogram_includes ${Histogram_includes} ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
-  set(Histogram_libraries ${Histogram_libraries} ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
-  message("Histogram submodule used from ${CMAKE_CURRENT_SOURCE_DIR}")
-endif()
-
 # ITK
 if(NOT ITK_FOUND)
   FIND_PACKAGE(ITK REQUIRED ITKCommon ITKIOImageBase ITKIOPNG ITKIOMeta
                             ITKImageIntensity ITKImageFeature ITKMathematicalMorphology
                             ITKBinaryMathematicalMorphology)
   INCLUDE(${ITK_USE_FILE})
+endif()
+
+if(NOT TARGET ITKHelpers)
+  add_subdirectory(ITKHelpers)
+  include_directories(${ITKHelpers_includes})
+  set(Histogram_includes ${Histogram_includes} ${ITKHelpers_includes})
+endif()
+
+# Whether or not the submodule is added here, this library is required.
+set(Histogram_libraries ${Histogram_libraries} ITKHelpers)
+
+if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+  set(Histogram_includes ${Histogram_includes} ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+  set(Histogram_libraries ${Histogram_libraries} ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+  message("Histogram submodule used from ${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
 
 #add_library(Histogram)
