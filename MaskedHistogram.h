@@ -25,7 +25,7 @@ namespace MaskedHistogram
 {
 /** This function computes the histogram of valid pixels (according to 'mask') in an image.
   * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
-  * a target mask to a source patch. */
+  * a target mask to a source patch. This function is for itk::VectorImage. */
 template <typename TComponent>
 Histogram<int>::HistogramType ComputeMaskedImage1DHistogram
     (const itk::VectorImage<TComponent, 2>* const image, const itk::ImageRegion<2>& imageRegion,
@@ -34,9 +34,20 @@ Histogram<int>::HistogramType ComputeMaskedImage1DHistogram
 
 /** This function computes the histogram of valid pixels (according to 'mask') in an image.
   * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
-  * a target mask to a source patch. */
+  * a target mask to a source patch. This function is for itk::Image<CovariantVector>. */
 template <typename TComponent, unsigned int Dimension>
 Histogram<int>::HistogramType ComputeMaskedImage1DHistogram
+    (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
+     const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
+     const TComponent& rangeMin, const TComponent& rangeMax);
+
+/** This function computes and concatenates the histogram of valid pixels (according to 'mask') in an image in each of the 4 quadrants.
+  * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
+  * a target mask to a source patch. This function is for itk::Image<CovariantVector>.
+  * For example, if a 3 channel image is presented and 10 bins per channel are requested, the output histogram will be
+  * 4 (quadrants) * 3 (channels) * 10 (bins per channel) = 120 bins. */
+template <typename TComponent, unsigned int Dimension>
+Histogram<int>::HistogramType ComputeQuadrantMaskedImage1DHistogram
     (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
      const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
      const TComponent& rangeMin, const TComponent& rangeMax);
