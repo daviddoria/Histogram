@@ -202,6 +202,28 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ScalarHistogr
 }
 
 template <typename TBinValue>
+float Histogram<TBinValue>::HistogramCoherence(const HistogramType& idealHistogram, const HistogramType& queryHistogram)
+{
+  if(idealHistogram.size() != queryHistogram.size())
+  {
+    std::stringstream ss;
+    ss << "HistogramCoherence: Histograms must be the same size! idealHistogram is " << idealHistogram.size() << " while queryHistogram is " << queryHistogram.size();
+    throw std::runtime_error(ss.str());
+  }
+
+  unsigned int numberOfNewBins = 0;
+  for(unsigned int bin = 0; bin < idealHistogram.size(); ++bin)
+  {
+    if((idealHistogram[bin] == 0) && (queryHistogram[bin] > 0))
+    {
+      numberOfNewBins++;
+    }
+  }
+
+  return numberOfNewBins;
+}
+
+template <typename TBinValue>
 float Histogram<TBinValue>::HistogramDifference(const HistogramType& histogram1, const HistogramType& histogram2)
 {
   // assert(TBinValue is a signed type)
@@ -232,22 +254,23 @@ float Histogram<TBinValue>::HistogramIntersection(const HistogramType& histogram
     return 0;
   }
 
-  float totalIntersection = 0.0f;
+  TBinValue totalIntersection = 0.0f;
   for(unsigned int bin = 0; bin < histogram1.size(); ++bin)
   {
     // The casts to float are necessary other wise the integer division always ends up = 0 !
-    float frequency1 = static_cast<float>(histogram1[bin]);
-    float frequency2 = static_cast<float>(histogram2[bin]);
+    TBinValue binCount1 = histogram1[bin];
+    TBinValue binCount2 = histogram2[bin];
     //std::cout << "frequency1: " << frequency1 << std::endl;
     //std::cout << "frequency2: " << frequency2 << std::endl;
-    float intersection = std::min(frequency1, frequency2);
+    TBinValue intersection = std::min(binCount1, binCount2);
     //std::cout << "intersection: " << intersection << std::endl;
     totalIntersection += intersection;
   }
 
-  float totalFrequency = std::accumulate(histogram1.begin(), histogram1.begin() + histogram1.size(), 0.0f);
+  // Why is this of histogram1 instead of histogram2? Are we assuming they have the same total bin sum?
+  float totalFrequency = std::accumulate(histogram1.begin(), histogram1.begin() + histogram1.size(), 0.0f); // This 0.0f is the "initial value of the sum". It has to be a float, or the sum will be an integer sum.
   //std::cout << "totalFrequency: " << totalFrequency << std::endl;
-  float normalizedIntersection = totalIntersection / totalFrequency;
+  float normalizedIntersection = static_cast<float>(totalIntersection) / totalFrequency;
   //std::cout << "normalizedIntersection: " << normalizedIntersection << std::endl;
   return normalizedIntersection;
 }

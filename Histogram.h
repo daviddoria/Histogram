@@ -75,10 +75,17 @@ public:
   static HistogramType ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
                                 const TValue& rangeMin, const TValue& rangeMax);
 
-  // M. J. Swain and D. H. Ballard. "Color Indexing." IJCV 7(1):11-32 November 1991
+  /** Compute the "Histogram Intersection" score between two histograms. This is the sum of the minimum of each corresponding bin. There is also a normalization that is performed.
+    * (M. J. Swain and D. H. Ballard. "Color Indexing." IJCV 7(1):11-32 November 1991) */
   static float HistogramIntersection(const HistogramType& histogram1, const HistogramType& histogram2);
 
+  /** Compute a bin-to-bin difference between the histograms. */
   static float HistogramDifference(const HistogramType& histogram1, const HistogramType& histogram2);
+
+  /** Determine how many bins in 'queryHistogram' have non-zero counts while the corresponding bin in 'idealHistogram' has a zero count. The idea is to get a sense of
+    * how many colors are present in the queryHistogram that are not present in the idealHistogram. A low score means that all of the colors in the queryHistogram are
+    * present in the idealHistogram, while a high score means that different colors are present. */
+  static float HistogramCoherence(const HistogramType& idealHistogram, const HistogramType& queryHistogram);
 
   static void WriteHistogram(const HistogramType& histogram, const std::string& filename);
 
