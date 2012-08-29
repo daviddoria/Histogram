@@ -224,6 +224,32 @@ float Histogram<TBinValue>::HistogramCoherence(const HistogramType& idealHistogr
 }
 
 template <typename TBinValue>
+float Histogram<TBinValue>::WeightedHistogramDifference(const HistogramType& idealHistogram, const HistogramType& queryHistogram)
+{
+  // assert(TBinValue is a signed type)
+  if(idealHistogram.size() != queryHistogram.size())
+  {
+    std::stringstream ss;
+    ss << "Histograms must be the same size! idealHistogram is " << idealHistogram.size()
+       << " while queryHistogram is " << queryHistogram.size();
+    throw std::runtime_error(ss.str());
+  }
+
+  float difference = 0.0f;
+
+  for(unsigned int bin = 0; bin < idealHistogram.size(); ++bin)
+  {
+    // Large values get a small weight
+    //float weight = 1.0f/static_cast<float>(idealHistogram[bin]); // cannot do this, because some bins are 0
+    float weight = 100.0f - static_cast<float>(idealHistogram[bin]); // this 100 is arbitrary, but if our patches have only a few hundred
+        // pixels, and there are ~50 bins, then there should never be a bin with > 100 count.
+    difference += weight * fabs(static_cast<float>(idealHistogram[bin]) - static_cast<float>(queryHistogram[bin]));
+  }
+
+  return difference;
+}
+
+template <typename TBinValue>
 float Histogram<TBinValue>::HistogramDifference(const HistogramType& histogram1, const HistogramType& histogram2)
 {
   // assert(TBinValue is a signed type)

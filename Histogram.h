@@ -75,20 +75,29 @@ public:
   static HistogramType ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
                                 const TValue& rangeMin, const TValue& rangeMax);
 
-  /** Compute the "Histogram Intersection" score between two histograms. This is the sum of the minimum of each corresponding bin. There is also a normalization that is performed.
+  /** Compute the "Histogram Intersection" score between two histograms. This is the sum of the minimum of each corresponding bin.
+    * There is also a normalization that is performed.
     * (M. J. Swain and D. H. Ballard. "Color Indexing." IJCV 7(1):11-32 November 1991) */
   static float HistogramIntersection(const HistogramType& histogram1, const HistogramType& histogram2);
 
   /** Compute a bin-to-bin difference between the histograms. */
   static float HistogramDifference(const HistogramType& histogram1, const HistogramType& histogram2);
 
+  /** Compute a weighted bin-to-bin difference between the histograms. Bins with large counts in 'idealHistogram'
+    * are considered to have low weight, as the difference at this bin is not necessarily bad (just because a certain color doesn't
+    * appear in a query histogram, that doesn't mean it is a bad match.) However, differences at bins with small counts in 'idealHistogram'
+    * are important (contribute a lot to the error) because this means that new colors have been introduced, which is bad for "color coherence." */
+  static float WeightedHistogramDifference(const HistogramType& idealHistogram, const HistogramType& queryHistogram);
+
   /** Determine how many bins in 'queryHistogram' have non-zero counts while the corresponding bin in 'idealHistogram' has a zero count. The idea is to get a sense of
     * how many colors are present in the queryHistogram that are not present in the idealHistogram. A low score means that all of the colors in the queryHistogram are
     * present in the idealHistogram, while a high score means that different colors are present. */
   static float HistogramCoherence(const HistogramType& idealHistogram, const HistogramType& queryHistogram);
 
+  /** Write the histogram bin counts to a file. */
   static void WriteHistogram(const HistogramType& histogram, const std::string& filename);
 
+  /** Write the histogram bin counts to the screen. */
   static void OutputHistogram(const HistogramType& histogram);
 
 };
