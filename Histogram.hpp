@@ -41,7 +41,8 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeScalar
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
     const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
-    const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax)
+    const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax,
+    const bool allowOutside)
 {
   // Compute the histogram for each channel separately
   HistogramType concatenatedHistograms;
@@ -51,7 +52,15 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeScalar
     std::vector<typename TImage::PixelType> pixelValues =
         ITKHelpers::GetPixelValuesInRegion(image, region);
 
-    HistogramType histogram = Histogram::ScalarHistogram(pixelValues, numberOfBinsPerDimensions, rangeMin, rangeMax);
+    HistogramType histogram;
+    if(allowOutside)
+    {
+      histogram = Histogram::ScalarHistogramAllowOutside(pixelValues, numberOfBinsPerDimensions, rangeMin, rangeMax);
+    }
+    else
+    {
+      histogram = Histogram::ScalarHistogram(pixelValues, numberOfBinsPerDimensions, rangeMin, rangeMax);
+    }
 
     concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
   }
@@ -66,9 +75,10 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageH
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
     const typename TypeTraits<typename TScalarImage::PixelType>::ComponentType& rangeMin,
-    const typename TypeTraits<typename TScalarImage::PixelType>::ComponentType& rangeMax)
+    const typename TypeTraits<typename TScalarImage::PixelType>::ComponentType& rangeMax,
+    const bool allowOutside)
 {
-  return ComputeScalarImageHistogram(image, region, numberOfBinsPerDimensions, rangeMin, rangeMax);
+  return ComputeScalarImageHistogram(image, region, numberOfBinsPerDimensions, rangeMin, rangeMax, allowOutside);
 }
 
 template <typename TBinValue>
@@ -78,7 +88,8 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageH
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
     const TComponent& rangeMin,
-    const TComponent& rangeMax)
+    const TComponent& rangeMax,
+    const bool allowOutside)
 {
   assert(image);
   //return Compute1DConcatenatedHistogramOfMultiChannelImage(image, region, numberOfBinsPerDimensions, rangeMin, rangeMax);
@@ -100,7 +111,7 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageH
     adaptor->SelectNthElement(channel);
     adaptor->SetImage(const_cast<ImageType*>(image));
 
-    HistogramType histogram = ComputeScalarImageHistogram(adaptor.GetPointer(), region, numberOfBinsPerDimensions, rangeMin, rangeMax);
+    HistogramType histogram = ComputeScalarImageHistogram(adaptor.GetPointer(), region, numberOfBinsPerDimensions, rangeMin, rangeMax, allowOutside);
 
     concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
   }
@@ -115,7 +126,8 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageH
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
     const TComponent& rangeMin,
-    const TComponent& rangeMax)
+    const TComponent& rangeMax,
+    const bool allowOutside)
 {
   // For VectorImage, we must use a VectorImageToImageAdapter
   //return Compute1DConcatenatedHistogramOfMultiChannelImage(image, region, numberOfBinsPerDimensions, rangeMin, rangeMax);
@@ -134,7 +146,7 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageH
     adaptor->SetExtractComponentIndex(channel);
     adaptor->SetImage(const_cast<ImageType*>(image));
 
-    HistogramType histogram = ComputeScalarImageHistogram(adaptor.GetPointer(), region, numberOfBinsPerDimensions, rangeMin, rangeMax);
+    HistogramType histogram = ComputeScalarImageHistogram(adaptor.GetPointer(), region, numberOfBinsPerDimensions, rangeMin, rangeMax, allowOutside);
 
     concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
   }
@@ -144,15 +156,59 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageH
 
 template <typename TBinValue>
 template <typename TValue>
-typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
-                                                                                   const TValue& rangeMin, const TValue& rangeMax)
+typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ScalarHistogramAllowOutside(const std::vector<TValue>& values, const unsigned int numberOfBins,
+                              const TValue& rangeMin, const TValue& rangeMax)
 {
+  assert(numberOfBins > 0);
+
+  assert(rangeMax > rangeMin);
+
   // Count how many values fall in each bin. We store these counts as floats because sometimes we want to normalize the counts.
   // std::cout << "Create histogram with " << numberOfBins << " bins." << std::endl;
   Histogram::HistogramType bins(numberOfBins, 0);
 
   const float binWidth = (rangeMax - rangeMin) / static_cast<float>(numberOfBins);
 
+  // If the bins are not reasonably sized, return an all zero histogram
+  if(fabs(binWidth - 0.0f) < 1e-6)
+  {
+    return bins;
+  }
+
+  for(unsigned int i = 0; i < values.size(); ++i)
+  {
+    int bin = (values[i] - rangeMin) / binWidth;
+    if(bin < 0)
+    {
+      bin = 0;
+    }
+    else if(bin >= static_cast<int>(numberOfBins)) // There are only (numberOfBins - 1) indexes since the bin ids start at 0
+    {
+      bin = numberOfBins - 1;
+    }
+
+    bins[bin]++;
+  }
+
+  return bins;
+}
+
+template <typename TBinValue>
+template <typename TValue>
+typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
+                                                                                   const TValue& rangeMin, const TValue& rangeMax)
+{
+  assert(numberOfBins > 0);
+
+  assert(rangeMax > rangeMin);
+
+  // Count how many values fall in each bin. We store these counts as floats because sometimes we want to normalize the counts.
+  // std::cout << "Create histogram with " << numberOfBins << " bins." << std::endl;
+  Histogram::HistogramType bins(numberOfBins, 0);
+
+  const float binWidth = (rangeMax - rangeMin) / static_cast<float>(numberOfBins);
+
+  // If the bins are not reasonably sized, return an all zero histogram
   if(fabs(binWidth - 0.0f) < 1e-6)
   {
     return bins;

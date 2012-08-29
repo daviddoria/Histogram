@@ -37,42 +37,55 @@ class Histogram
 public:
   typedef std::vector<TBinValue> HistogramType;
 
-  /** Compute the histograms of each channel of an image, and concatentate them together to form
-    * of a 1D histogram. */
-
+  /** Compute the histogram of a scalar itk::Image. This function is called by the ComputeImageHistogram1D overload
+    * that does not match itk::VectorImage or itk::Image<CovariantVector>. */
   template <typename TImage>
   static HistogramType ComputeScalarImageHistogram(
                   const TImage* image, const itk::ImageRegion<2>& region,
                   const unsigned int numberOfBinsPerDimension,
                   const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
-                  const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax);
-  
+                  const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMax, const bool allowOutside = false);
+
+  /** Compute the histogram of a scalar itk::Image. */
   template <typename TScalarImage>
   static HistogramType ComputeImageHistogram1D(
                   const TScalarImage* image, const itk::ImageRegion<2>& region,
                   const unsigned int numberOfBinsPerDimension,
                   const typename TypeTraits<typename TScalarImage::PixelType>::ComponentType& rangeMin,
-                  const typename TypeTraits<typename TScalarImage::PixelType>::ComponentType& rangeMax);
+                  const typename TypeTraits<typename TScalarImage::PixelType>::ComponentType& rangeMax, const bool allowOutside = false);
 
+  /** Compute the histograms of each channel of an itk::Image<CovariantVector>, and concatentate them together to form
+    * of a 1D histogram. It is necessary to have this function separate from the one that handles itk::VectorImage because
+    * NthElementImageAdaptor must be used for Image<CovariantVector>, while VectorImageToImageAdapter must be used for VectorImage. */
   template <typename TComponent, unsigned int Dimension>
   static HistogramType ComputeImageHistogram1D(
                   const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* image,
                   const itk::ImageRegion<2>& region,
                   const unsigned int numberOfBinsPerDimension,
                   const TComponent& rangeMin,
-                  const TComponent& rangeMax);
+                  const TComponent& rangeMax, const bool allowOutside = false);
 
+  /** Compute the histograms of each channel of an itk::VectorImage, and concatentate them together to form
+    * of a 1D histogram.  It is necessary to have this function separate from the one that handles itk::Image<CovariantVector> because
+    * NthElementImageAdaptor must be used for Image<CovariantVector>, while VectorImageToImageAdapter must be used for VectorImage. */
   template <typename TComponent>
   static HistogramType ComputeImageHistogram1D(
                   const itk::VectorImage<TComponent, 2>* image,
                   const itk::ImageRegion<2>& region,
                   const unsigned int numberOfBinsPerDimension,
                   const TComponent& rangeMin,
-                  const TComponent& rangeMax);
+                  const TComponent& rangeMax, const bool allowOutside);
 
-  /** Compute the histogram of a collection of values. */
+  /** Compute the histogram of a collection of values. The values are expected to fall inside of [rangeMin, rangeMax].*/
   template <typename TValue>
   static HistogramType ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
+                                const TValue& rangeMin, const TValue& rangeMax);
+
+  /** Compute the histogram of a collection of values. Values that fall outside of [rangeMin, rangeMax] are placed in the end bin
+    * closest to them. That is, if the range is [0,10] and the value is 11, it will be placed in the bin in which the top of the bin range
+    * is 10. Conversely, if the range is [0, 10] and the value is -2, it will be placed in the bin in which the bottom of the bin range is 0.*/
+  template <typename TValue>
+  static HistogramType ScalarHistogramAllowOutside(const std::vector<TValue>& values, const unsigned int numberOfBins,
                                 const TValue& rangeMin, const TValue& rangeMax);
 
   /** Compute the "Histogram Intersection" score between two histograms. This is the sum of the minimum of each corresponding bin.
