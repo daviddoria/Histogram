@@ -36,7 +36,7 @@
 
 template <typename TBinValue>
 template <typename TImage>
-typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeScalarImageHistogram(
+typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ComputeScalarImageHistogram(
     const TImage* image,
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
@@ -55,11 +55,11 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeScalar
     HistogramType histogram;
     if(allowOutside)
     {
-      histogram = Histogram::ScalarHistogramAllowOutside(pixelValues, numberOfBinsPerDimensions, rangeMin, rangeMax);
+      histogram = ScalarHistogramAllowOutside(pixelValues, numberOfBinsPerDimensions, rangeMin, rangeMax);
     }
     else
     {
-      histogram = Histogram::ScalarHistogram(pixelValues, numberOfBinsPerDimensions, rangeMin, rangeMax);
+      histogram = ScalarHistogram(pixelValues, numberOfBinsPerDimensions, rangeMin, rangeMax);
     }
 
     concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
@@ -70,7 +70,7 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeScalar
 
 template <typename TBinValue>
 template <typename TScalarImage>
-typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageHistogram1D(
+typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ComputeImageHistogram1D(
     const TScalarImage* image,
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
@@ -83,7 +83,7 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageH
 
 template <typename TBinValue>
 template <typename TComponent, unsigned int Dimension>
-typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageHistogram1D(
+typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ComputeImageHistogram1D(
     const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* image,
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
@@ -121,7 +121,7 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageH
 
 template <typename TBinValue>
 template <typename TComponent>
-typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageHistogram1D(
+typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ComputeImageHistogram1D(
     const itk::VectorImage<TComponent, 2>* image,
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
@@ -156,8 +156,9 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeImageH
 
 template <typename TBinValue>
 template <typename TValue>
-typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ScalarHistogramAllowOutside(const std::vector<TValue>& values, const unsigned int numberOfBins,
-                              const TValue& rangeMin, const TValue& rangeMax)
+typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ScalarHistogramAllowOutside(const std::vector<TValue>& values,
+                                                                                                                 const unsigned int numberOfBins,
+                                                                                                                 const TValue& rangeMin, const TValue& rangeMax)
 {
   assert(numberOfBins > 0);
 
@@ -165,7 +166,7 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ScalarHistogr
 
   // Count how many values fall in each bin. We store these counts as floats because sometimes we want to normalize the counts.
   // std::cout << "Create histogram with " << numberOfBins << " bins." << std::endl;
-  Histogram::HistogramType bins(numberOfBins, 0);
+  HistogramType bins(numberOfBins, 0);
 
   const float binWidth = (rangeMax - rangeMin) / static_cast<float>(numberOfBins);
 
@@ -195,8 +196,9 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ScalarHistogr
 
 template <typename TBinValue>
 template <typename TValue>
-typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ScalarHistogram(const std::vector<TValue>& values, const unsigned int numberOfBins,
-                                                                                   const TValue& rangeMin, const TValue& rangeMax)
+typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ScalarHistogram(const std::vector<TValue>& values,
+                                                                                                     const unsigned int numberOfBins,
+                                                                                                     const TValue& rangeMin, const TValue& rangeMax)
 {
   assert(numberOfBins > 0);
 
@@ -204,7 +206,7 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ScalarHistogr
 
   // Count how many values fall in each bin. We store these counts as floats because sometimes we want to normalize the counts.
   // std::cout << "Create histogram with " << numberOfBins << " bins." << std::endl;
-  Histogram::HistogramType bins(numberOfBins, 0);
+  HistogramType bins(numberOfBins, 0);
 
   const float binWidth = (rangeMax - rangeMin) / static_cast<float>(numberOfBins);
 
@@ -257,130 +259,9 @@ typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ScalarHistogr
   return bins;
 }
 
-template <typename TBinValue>
-float Histogram<TBinValue>::HistogramCoherence(const HistogramType& idealHistogram, const HistogramType& queryHistogram)
-{
-  if(idealHistogram.size() != queryHistogram.size())
-  {
-    std::stringstream ss;
-    ss << "HistogramCoherence: Histograms must be the same size! idealHistogram is " << idealHistogram.size() << " while queryHistogram is " << queryHistogram.size();
-    throw std::runtime_error(ss.str());
-  }
-
-  unsigned int numberOfNewBins = 0;
-  for(unsigned int bin = 0; bin < idealHistogram.size(); ++bin)
-  {
-    if((idealHistogram[bin] == 0) && (queryHistogram[bin] > 0))
-    {
-      numberOfNewBins++;
-    }
-  }
-
-  return numberOfNewBins;
-}
-
-template <typename TBinValue>
-float Histogram<TBinValue>::WeightedHistogramDifference(const HistogramType& idealHistogram, const HistogramType& queryHistogram)
-{
-  // assert(TBinValue is a signed type)
-  if(idealHistogram.size() != queryHistogram.size())
-  {
-    std::stringstream ss;
-    ss << "Histograms must be the same size! idealHistogram is " << idealHistogram.size()
-       << " while queryHistogram is " << queryHistogram.size();
-    throw std::runtime_error(ss.str());
-  }
-
-  float difference = 0.0f;
-
-  for(unsigned int bin = 0; bin < idealHistogram.size(); ++bin)
-  {
-    // Large values get a small weight
-    //float weight = 1.0f/static_cast<float>(idealHistogram[bin]); // cannot do this, because some bins are 0
-    float weight = 100.0f - static_cast<float>(idealHistogram[bin]); // this 100 is arbitrary, but if our patches have only a few hundred
-        // pixels, and there are ~50 bins, then there should never be a bin with > 100 count.
-    difference += weight * fabs(static_cast<float>(idealHistogram[bin]) - static_cast<float>(queryHistogram[bin]));
-  }
-
-  return difference;
-}
-
-template <typename TBinValue>
-float Histogram<TBinValue>::HistogramDifference(const HistogramType& histogram1, const HistogramType& histogram2)
-{
-  // assert(TBinValue is a signed type)
-  if(histogram1.size() != histogram2.size())
-  {
-    std::stringstream ss;
-    ss << "Histograms must be the same size! histogram1 is " << histogram1.size() << " while histogram2 is " << histogram2.size();
-    throw std::runtime_error(ss.str());
-  }
-
-  //float difference = 0.0f;
-  TBinValue difference = 0;
-  for(unsigned int bin = 0; bin < histogram1.size(); ++bin)
-  {
-    //difference += fabs(static_cast<float>(histogram1[bin]) - static_cast<float>(histogram2[bin]));
-    difference += fabs(histogram1[bin] - histogram2[bin]);
-  }
-
-  return difference;
-}
-
-template <typename TBinValue>
-float Histogram<TBinValue>::HistogramIntersection(const HistogramType& histogram1, const HistogramType& histogram2)
-{
-  if(histogram1.size() != histogram2.size())
-  {
-    std::cerr << "Histograms must be the same size!" << std::endl;
-    return 0;
-  }
-
-  TBinValue totalIntersection = 0.0f;
-  for(unsigned int bin = 0; bin < histogram1.size(); ++bin)
-  {
-    // The casts to float are necessary other wise the integer division always ends up = 0 !
-    TBinValue binCount1 = histogram1[bin];
-    TBinValue binCount2 = histogram2[bin];
-    //std::cout << "frequency1: " << frequency1 << std::endl;
-    //std::cout << "frequency2: " << frequency2 << std::endl;
-    TBinValue intersection = std::min(binCount1, binCount2);
-    //std::cout << "intersection: " << intersection << std::endl;
-    totalIntersection += intersection;
-  }
-
-  // Why is this of histogram1 instead of histogram2? Are we assuming they have the same total bin sum?
-  float totalFrequency = std::accumulate(histogram1.begin(), histogram1.begin() + histogram1.size(), 0.0f); // This 0.0f is the "initial value of the sum". It has to be a float, or the sum will be an integer sum.
-  //std::cout << "totalFrequency: " << totalFrequency << std::endl;
-  float normalizedIntersection = static_cast<float>(totalIntersection) / totalFrequency;
-  //std::cout << "normalizedIntersection: " << normalizedIntersection << std::endl;
-  return normalizedIntersection;
-}
-
-
-template <typename TBinValue>
-void Histogram<TBinValue>::WriteHistogram(const Histogram::HistogramType& histogram, const std::string& filename)
-{
-  std::ofstream fout(filename.c_str());
-  for(unsigned int i = 0; i < histogram.size(); ++i)
-  {
-    fout << histogram[i] << " ";
-  }
-
-  fout.close();
-}
-
-template <typename TBinValue>
-void Histogram<TBinValue>::OutputHistogram(const HistogramType& histogram)
-{
-  for(unsigned int i = 0; i < histogram.size(); ++i)
-  {
-    std::cout << histogram[i] << " ";
-  }
-}
 /*
 template <typename TBinValue>
-typename Histogram<TBinValue>::HistogramType Histogram<TBinValue>::ComputeHistogramOfGradient(const FloatVector2ImageType* gradientImage, const itk::ImageRegion<2>& region)
+typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ComputeHistogramOfGradient(const FloatVector2ImageType* gradientImage, const itk::ImageRegion<2>& region)
 {
   // Discretize the continuum of possible angles of vectors in the right half-plane.
   // (We flip all vectors so that they are pointing towards the right half-plane, since their orientation is not important).

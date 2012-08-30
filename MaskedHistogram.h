@@ -21,44 +21,53 @@
 
 #include "Histogram.h"
 
+/** This collection of functions computes histograms for regions of images where only some of the pixels
+  * are considered, based on their corresponding value in a Mask. */
 template <typename TBinValue>
-class MaskedHistogram
+class MaskedHistogramGenerator
 {
 public:
-/** This function computes the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image.
-  * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
-  * a target mask to a source patch. This function is for itk::VectorImage. */
-template <typename TComponent>
-static typename Histogram<TBinValue>::HistogramType ComputeMaskedImage1DHistogram
-    (const itk::VectorImage<TComponent, 2>* const image,
-     const itk::ImageRegion<2>& imageRegion,
-     const Mask* const mask,
-     const itk::ImageRegion<2>& maskRegion,
-     const unsigned int numberOfBins,
-     const TComponent& rangeMin,
-     const TComponent& rangeMax,
-     const bool allowOutside,
-     const unsigned char maskValue);
 
-/** This function computes the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image.
-  * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
-  * a target mask to a source patch. This function is for itk::Image<CovariantVector>. */
-template <typename TComponent, unsigned int Dimension>
-static typename Histogram<TBinValue>::HistogramType ComputeMaskedImage1DHistogram
-    (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
-     const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
-     const TComponent& rangeMin, const TComponent& rangeMax, const bool allowOutside, const unsigned char maskValue);
+  /** The type of histogram generator to use to generate non-masked histograms internally. */
+  typedef HistogramGenerator<TBinValue> HistogramGeneratorType;
 
-/** This function computes and concatenates the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image in each of the 4 quadrants.
-  * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
-  * a target mask to a source patch. This function is for itk::Image<CovariantVector>.
-  * For example, if a 3 channel image is presented and 10 bins per channel are requested, the output histogram will be
-  * 4 (quadrants) * 3 (channels) * 10 (bins per channel) = 120 bins. */
-template <typename TComponent, unsigned int Dimension>
-static typename Histogram<TBinValue>::HistogramType ComputeQuadrantMaskedImage1DHistogram
-    (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
-     const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
-     const TComponent& rangeMin, const TComponent& rangeMax, const bool allowOutside, const unsigned char maskValue);
+  /** The type of histogram that will be returned by functions in this class. */
+  typedef typename HistogramGeneratorType::HistogramType HistogramType;
+
+  /** This function computes the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image.
+    * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
+    * a target mask to a source patch. This function is for itk::VectorImage. */
+  template <typename TComponent>
+  static HistogramType ComputeMaskedImage1DHistogram
+      (const itk::VectorImage<TComponent, 2>* const image,
+       const itk::ImageRegion<2>& imageRegion,
+       const Mask* const mask,
+       const itk::ImageRegion<2>& maskRegion,
+       const unsigned int numberOfBins,
+       const TComponent& rangeMin,
+       const TComponent& rangeMax,
+       const bool allowOutside,
+       const unsigned char maskValue);
+
+  /** This function computes the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image.
+    * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
+    * a target mask to a source patch. This function is for itk::Image<CovariantVector>. */
+  template <typename TComponent, unsigned int Dimension>
+  static HistogramType ComputeMaskedImage1DHistogram
+      (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
+       const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
+       const TComponent& rangeMin, const TComponent& rangeMax, const bool allowOutside, const unsigned char maskValue);
+
+  /** This function computes and concatenates the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image in each of the 4 quadrants.
+    * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
+    * a target mask to a source patch. This function is for itk::Image<CovariantVector>.
+    * For example, if a 3 channel image is presented and 10 bins per channel are requested, the output histogram will be
+    * 4 (quadrants) * 3 (channels) * 10 (bins per channel) = 120 bins. */
+  template <typename TComponent, unsigned int Dimension>
+  static HistogramType ComputeQuadrantMaskedImage1DHistogram
+      (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
+       const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
+       const TComponent& rangeMin, const TComponent& rangeMax, const bool allowOutside, const unsigned char maskValue);
 
 }; // end class MaskedHistogram
 

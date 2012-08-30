@@ -23,7 +23,7 @@
 
 template <typename TBinValue>
 template <typename TComponent>
-typename Histogram<TBinValue>::HistogramType MaskedHistogram<TBinValue>::ComputeMaskedImage1DHistogram(
+typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGenerator<TBinValue>::ComputeMaskedImage1DHistogram(
                 const itk::VectorImage<TComponent, 2>* image,
                 const itk::ImageRegion<2>& imageRegion,
                 const Mask* const mask,
@@ -47,7 +47,7 @@ typename Histogram<TBinValue>::HistogramType MaskedHistogram<TBinValue>::Compute
     imageIndices[i] = maskIndices[i] + maskRegionToImageRegionOffset;
   }
 
-  typename Histogram<TBinValue>::HistogramType concatenatedHistograms;
+  HistogramType concatenatedHistograms;
 
   for(unsigned int channel = 0; channel < image->GetNumberOfComponentsPerPixel(); ++channel)
   {
@@ -63,7 +63,7 @@ typename Histogram<TBinValue>::HistogramType MaskedHistogram<TBinValue>::Compute
         ITKHelpers::GetPixelValues(adaptor.GetPointer(), imageIndices);
 
     // Compute the histogram of the scalar values
-    typename Histogram<TBinValue>::HistogramType histogram = Histogram<TBinValue>::ScalarHistogram(validPixels, numberOfBinsPerDimension, rangeMin, rangeMax, allowOutside);
+    HistogramType histogram = HistogramGeneratorType::ScalarHistogram(validPixels, numberOfBinsPerDimension, rangeMin, rangeMax, allowOutside);
 
     concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
   }
@@ -73,7 +73,7 @@ typename Histogram<TBinValue>::HistogramType MaskedHistogram<TBinValue>::Compute
 
 template <typename TBinValue>
 template <typename TComponent, unsigned int Dimension>
-typename Histogram<TBinValue>::HistogramType MaskedHistogram<TBinValue>::ComputeMaskedImage1DHistogram
+typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGenerator<TBinValue>::ComputeMaskedImage1DHistogram
     (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
      const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBinsPerDimension,
      const TComponent& rangeMin, const TComponent& rangeMax, const bool allowOutside, const unsigned char maskValue)
@@ -93,7 +93,7 @@ typename Histogram<TBinValue>::HistogramType MaskedHistogram<TBinValue>::Compute
     imageIndices[i] = maskIndices[i] + maskRegionToImageRegionOffset;
   }
 
-  typename Histogram<TBinValue>::HistogramType concatenatedHistograms;
+  HistogramType concatenatedHistograms;
 
   for(unsigned int channel = 0; channel < Dimension; ++channel)
   {
@@ -108,15 +108,15 @@ typename Histogram<TBinValue>::HistogramType MaskedHistogram<TBinValue>::Compute
     std::vector<typename ScalarImageType::PixelType> validPixels =
         ITKHelpers::GetPixelValues(adaptor.GetPointer(), imageIndices);
 
-    typename Histogram<TBinValue>::HistogramType histogram;
+    HistogramType histogram;
     // Compute the histogram of the scalar values
     if(allowOutside)
     {
-      histogram = Histogram<TBinValue>::ScalarHistogramAllowOutside(validPixels, numberOfBinsPerDimension, rangeMin, rangeMax);
+      histogram = HistogramGeneratorType::ScalarHistogramAllowOutside(validPixels, numberOfBinsPerDimension, rangeMin, rangeMax);
     }
     else
     {
-      histogram = Histogram<TBinValue>::ScalarHistogram(validPixels, numberOfBinsPerDimension, rangeMin, rangeMax);
+      histogram = HistogramGeneratorType::ScalarHistogram(validPixels, numberOfBinsPerDimension, rangeMin, rangeMax);
     }
 
     concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
@@ -127,12 +127,12 @@ typename Histogram<TBinValue>::HistogramType MaskedHistogram<TBinValue>::Compute
 
 template <typename TBinValue>
 template <typename TComponent, unsigned int Dimension>
-typename Histogram<TBinValue>::HistogramType MaskedHistogram<TBinValue>::ComputeQuadrantMaskedImage1DHistogram
+typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGenerator<TBinValue>::ComputeQuadrantMaskedImage1DHistogram
     (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
      const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBinsPerDimension,
      const TComponent& rangeMin, const TComponent& rangeMax, const bool allowOutside, const unsigned char maskValue)
 {
-  typename Histogram<TBinValue>::HistogramType fullHistogram;
+  HistogramType fullHistogram;
 
   // Ignore the quadrant if it doesn't contain at least this ratio of valid pixels (i.e. too much of the quadrant is the hole)
   float minValidPixelRatio = 0.2f; // If less than 20% of the pixels in a quadrant are valid, do not consider the quadrant at all
@@ -148,7 +148,7 @@ typename Histogram<TBinValue>::HistogramType MaskedHistogram<TBinValue>::Compute
     // Only calculate and append the histogram if there are enough valid pixels
     if(validPixelRatio > minValidPixelRatio)
     {
-      typename Histogram<TBinValue>::HistogramType quadrantHistogram = ComputeMaskedImage1DHistogram(image, imageRegionQuadrant, mask, maskRegionQuadrant, numberOfBinsPerDimension, rangeMin, rangeMax, allowOutside, maskValue);
+      HistogramType quadrantHistogram = ComputeMaskedImage1DHistogram(image, imageRegionQuadrant, mask, maskRegionQuadrant, numberOfBinsPerDimension, rangeMin, rangeMax, allowOutside, maskValue);
       fullHistogram.insert(fullHistogram.end(), quadrantHistogram.begin(), quadrantHistogram.end());
     }
   }
