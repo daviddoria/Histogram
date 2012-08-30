@@ -16,10 +16,10 @@
  *
  *=========================================================================*/
 
-#ifndef MaskedHistogram_HPP
-#define MaskedHistogram_HPP
+#ifndef MaskedHistogramGenerator_HPP
+#define MaskedHistogramGenerator_HPP
 
-#include "MaskedHistogram.h"
+#include "MaskedHistogramGenerator.h"
 
 template <typename TBinValue>
 template <typename TComponent>

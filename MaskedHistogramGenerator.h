@@ -16,10 +16,10 @@
  *
  *=========================================================================*/
 
-#ifndef MaskedHistogram_H
-#define MaskedHistogram_H
+#ifndef MaskedHistogramGenerator_H
+#define MaskedHistogramGenerator_H
 
-#include "Histogram.h"
+#include "HistogramGenerator.h"
 
 /** This collection of functions computes histograms for regions of images where only some of the pixels
   * are considered, based on their corresponding value in a Mask. */
@@ -69,8 +69,8 @@ public:
        const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
        const TComponent& rangeMin, const TComponent& rangeMax, const bool allowOutside, const unsigned char maskValue);
 
-}; // end class MaskedHistogram
+}; // end class MaskedHistogramGenerator
 
-#include "MaskedHistogram.hpp"
+#include "MaskedHistogramGenerator.hpp"
 
 #endif

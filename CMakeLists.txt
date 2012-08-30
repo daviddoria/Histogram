@@ -33,9 +33,14 @@ if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   message("Histogram submodule used from ${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
 
-add_custom_target(Histogram SOURCES Histogram.h Histogram.hpp
-MaskedHistogram.h MaskedHistogram.hpp
-HistogramHelpers.hpp)
+add_custom_target(Histogram SOURCES
+Histogram.h
+HistogramGenerator.h
+HistogramGenerator.hpp
+MaskedHistogramGenerator.h
+MaskedHistogramGenerator.hpp
+HistogramHelpers.hpp
+HistogramDifferences.hpp)
 
 SET(Histogram_BuildTests OFF CACHE BOOL "Build Histogram tests?")
 if(Histogram_BuildTests)
