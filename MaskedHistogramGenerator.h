@@ -44,8 +44,8 @@ public:
        const Mask* const mask,
        const itk::ImageRegion<2>& maskRegion,
        const unsigned int numberOfBins,
-       const TComponent& rangeMin,
-       const TComponent& rangeMax,
+       const std::vector<TComponent>& rangeMins,
+       const std::vector<TComponent>& rangeMaxs,
        const bool allowOutside,
        const unsigned char maskValue);
 
@@ -56,7 +56,7 @@ public:
   static HistogramType ComputeMaskedImage1DHistogram
       (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
        const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
-       const TComponent& rangeMin, const TComponent& rangeMax, const bool allowOutside, const unsigned char maskValue);
+       const std::vector<TComponent>& rangeMins, const std::vector<TComponent>& rangeMaxs, const bool allowOutside, const unsigned char maskValue);
 
   /** This function computes and concatenates the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image in each of the 4 quadrants.
     * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply

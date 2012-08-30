@@ -29,8 +29,8 @@ typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGener
                 const Mask* const mask,
                 const itk::ImageRegion<2>& maskRegion,
                 const unsigned int numberOfBinsPerDimension,
-                const TComponent& rangeMin,
-                const TComponent& rangeMax, const bool allowOutside, const unsigned char maskValue)
+                const std::vector<TComponent>& rangeMins,
+                const std::vector<TComponent>& rangeMaxs, const bool allowOutside, const unsigned char maskValue)
 {
   // For VectorImage, we must use VectorImageToImageAdaptor
 
@@ -63,8 +63,15 @@ typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGener
         ITKHelpers::GetPixelValues(adaptor.GetPointer(), imageIndices);
 
     // Compute the histogram of the scalar values
-    HistogramType histogram = HistogramGeneratorType::ScalarHistogram(validPixels, numberOfBinsPerDimension, rangeMin, rangeMax, allowOutside);
-
+    HistogramType histogram;
+    if(allowOutside)
+    {
+      histogram = HistogramGeneratorType::ScalarHistogramAllowOutside(validPixels, numberOfBinsPerDimension, rangeMins[channel], rangeMaxs[channel]);
+    }
+    else
+    {
+      histogram = HistogramGeneratorType::ScalarHistogram(validPixels, numberOfBinsPerDimension, rangeMins[channel], rangeMaxs[channel]);
+    }
     concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
   }
 
@@ -76,7 +83,7 @@ template <typename TComponent, unsigned int Dimension>
 typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGenerator<TBinValue>::ComputeMaskedImage1DHistogram
     (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
      const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBinsPerDimension,
-     const TComponent& rangeMin, const TComponent& rangeMax, const bool allowOutside, const unsigned char maskValue)
+     const std::vector<TComponent>& rangeMins, const std::vector<TComponent>& rangeMaxs, const bool allowOutside, const unsigned char maskValue)
 {
   // For Image<CovariantVector>, we must use NthElementImageAdaptor
 
@@ -112,11 +119,11 @@ typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGener
     // Compute the histogram of the scalar values
     if(allowOutside)
     {
-      histogram = HistogramGeneratorType::ScalarHistogramAllowOutside(validPixels, numberOfBinsPerDimension, rangeMin, rangeMax);
+      histogram = HistogramGeneratorType::ScalarHistogramAllowOutside(validPixels, numberOfBinsPerDimension, rangeMins[channel], rangeMaxs[channel]);
     }
     else
     {
-      histogram = HistogramGeneratorType::ScalarHistogram(validPixels, numberOfBinsPerDimension, rangeMin, rangeMax);
+      histogram = HistogramGeneratorType::ScalarHistogram(validPixels, numberOfBinsPerDimension, rangeMins[channel], rangeMaxs[channel]);
     }
 
     concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
