@@ -21,40 +21,38 @@
 
 #include "HistogramGenerator.h"
 
-/** This class stores properties about quadrant histograms. */
-template <typename TPixelType>
+// STL
+#include <vector>
+
+/** This class stores properties about quadrant histograms.
+  * \tparam TRangeContainer - A type that holds a scalar value for each dimension of the image.
+  * This is typically TImage::PixelType or std::vector<typename TypeTraits<typename TImage::PixelType>::ComponentType>.
+  */
+template <typename TRangeContainer>
 struct QuadrantHistogramProperties
 {
-  typedef std::vector<TPixelType> RangeContainerType;
-
-  // No need to use a dynamic container because the length is always 4.
-//  /** A collection of 4 min ranges (one for each quadrant). */
-//  std::vector<RangeContainerType> QuadrantMinRanges;
-
-//  /** A collection of 4 max ranges (one for each quadrant). */
-//  std::vector<RangeContainerType> QuadrantMaxRanges;
-
-//  /** A boolean for each quadrant indicating if it has enough valid pixels to be used. */
-//  std::vector<bool> Used;
-
   /** A collection of min ranges (one for each quadrant). */
-  RangeContainerType QuadrantMinRanges[4];
+  TRangeContainer QuadrantMinRanges[4];
 
   /** A collection of max ranges (one for each quadrant). */
-  RangeContainerType QuadrantMaxRanges[4];
+  TRangeContainer QuadrantMaxRanges[4];
 
   /** A boolean for each quadrant indicating if it has enough valid pixels to be used. */
   bool Used[4];
 
   unsigned int NumberOfBinsPerDimension;
 
-  const bool AllowOutside;
+  /** This flag determines if an error is produced if a value is found to be outside the requested range.
+    * If it is set to "false", the error is produced. If it is set to "true", values outside the range are
+    * added to the closesest end bin (highest bin or lowest bin, depending on if the value is above or below
+    * the requested range, respectively). */
+  bool AllowOutside;
 
-  QuadrantHistogramProperties() : NumberOfBinsPerDimension(30), AllowOutside(false)
+  QuadrantHistogramProperties() : NumberOfBinsPerDimension(30), AllowOutside(true)
   {
     for(unsigned int i = 0; i < 4; ++i)
     {
-      this->Used[i] = true;
+      this->Used[i] = false;
     }
   }
 };
@@ -75,26 +73,26 @@ public:
   /** This function computes the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image.
     * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
     * a target mask to a source patch. This function is for itk::VectorImage. */
-  template <typename TComponent>
+  template <typename TComponent, typename TRangeContainer>
   static HistogramType ComputeMaskedImage1DHistogram
       (const itk::VectorImage<TComponent, 2>* const image,
        const itk::ImageRegion<2>& imageRegion,
        const Mask* const mask,
        const itk::ImageRegion<2>& maskRegion,
        const unsigned int numberOfBins,
-       const std::vector<TComponent>& rangeMins,
-       const std::vector<TComponent>& rangeMaxs,
+       const TRangeContainer& rangeMins,
+       const TRangeContainer& rangeMaxs,
        const bool allowOutside,
        const unsigned char maskValue);
 
   /** This function computes the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image.
     * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
     * a target mask to a source patch. This function is for itk::Image<CovariantVector>. */
-  template <typename TComponent, unsigned int Dimension>
+  template <typename TComponent, unsigned int Dimension, typename TRangeContainer>
   static HistogramType ComputeMaskedImage1DHistogram
       (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
        const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
-       const std::vector<TComponent>& rangeMins, const std::vector<TComponent>& rangeMaxs, const bool allowOutside, const unsigned char maskValue);
+       const TRangeContainer& rangeMins, const TRangeContainer& rangeMaxs, const bool allowOutside, const unsigned char maskValue);
 
   /** This function computes and concatenates the histogram of valid/hole (specified by 'maskValue') pixels
     * (according to 'mask') in an image in each of the 4 quadrants using an adaptive range for each channel of each quadrant.

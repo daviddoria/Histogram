@@ -22,15 +22,15 @@
 #include "MaskedHistogramGenerator.h"
 
 template <typename TBinValue>
-template <typename TComponent>
+template <typename TComponent, typename TRangeContainer>
 typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGenerator<TBinValue>::ComputeMaskedImage1DHistogram(
                 const itk::VectorImage<TComponent, 2>* image,
                 const itk::ImageRegion<2>& imageRegion,
                 const Mask* const mask,
                 const itk::ImageRegion<2>& maskRegion,
                 const unsigned int numberOfBinsPerDimension,
-                const std::vector<TComponent>& rangeMins,
-                const std::vector<TComponent>& rangeMaxs, const bool allowOutside, const unsigned char maskValue)
+                const TRangeContainer& rangeMins,
+                const TRangeContainer& rangeMaxs, const bool allowOutside, const unsigned char maskValue)
 {
   // For VectorImage, we must use VectorImageToImageAdaptor
 
@@ -79,11 +79,11 @@ typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGener
 }
 
 template <typename TBinValue>
-template <typename TComponent, unsigned int Dimension>
+template <typename TComponent, unsigned int Dimension, typename TRangeContainer>
 typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGenerator<TBinValue>::ComputeMaskedImage1DHistogram
     (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
      const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBinsPerDimension,
-     const std::vector<TComponent>& rangeMins, const std::vector<TComponent>& rangeMaxs, const bool allowOutside, const unsigned char maskValue)
+     const TRangeContainer& rangeMins, const TRangeContainer& rangeMaxs, const bool allowOutside, const unsigned char maskValue)
 {
   // For Image<CovariantVector>, we must use NthElementImageAdaptor
 
