@@ -54,6 +54,8 @@ public:
 //  typedef std::vector<TBinValue> HistogramType;
   typedef Histogram<TBinValue> HistogramType;
 
+  typedef QuadrantHistogram<HistogramType> QuadrantHistogramType;
+
   /** Compute the histogram of a scalar itk::Image. This function is called by the ComputeImageHistogram1D overload
     * that does not match itk::VectorImage or itk::Image<CovariantVector>. */
   template <typename TImage>

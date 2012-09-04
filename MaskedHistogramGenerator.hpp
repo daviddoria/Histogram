@@ -134,7 +134,7 @@ typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGener
 
 template <typename TBinValue>
 template <typename TComponent, unsigned int Dimension>
-typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGenerator<TBinValue>::ComputeQuadrantMaskedImage1DHistogramAdaptive
+typename MaskedHistogramGenerator<TBinValue>::QuadrantHistogramType MaskedHistogramGenerator<TBinValue>::ComputeQuadrantMaskedImage1DHistogramAdaptive
     (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
      const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const QuadrantHistogramProperties<itk::CovariantVector<TComponent, Dimension> > &quadrantHistogramProperties,
      const bool useProvidedRanges,
@@ -145,7 +145,7 @@ typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGener
 
   typedef itk::Image<PixelType, 2> ImageType;
 
-  HistogramType fullHistogram;
+  QuadrantHistogramType quadrantHistograms;
 
   if(useProvidedRanges)
   {
@@ -166,8 +166,9 @@ typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGener
         HistogramType quadrantHistogram = ComputeMaskedImage1DHistogram(image, imageRegionQuadrant, mask, maskRegionQuadrant,
                                                                         quadrantHistogramProperties.NumberOfBinsPerDimension, quadrantHistogramProperties.QuadrantMinRanges[quadrant],
                                                                         quadrantHistogramProperties.QuadrantMaxRanges[quadrant], quadrantHistogramProperties.AllowOutside, maskValue);
-        fullHistogram.insert(fullHistogram.end(), quadrantHistogram.begin(), quadrantHistogram.end());
 
+        //fullHistogram.insert(fullHistogram.end(), quadrantHistogram.begin(), quadrantHistogram.end());
+        quadrantHistograms.Histograms[quadrant] = quadrantHistogram;
       }
     }
 
@@ -205,7 +206,8 @@ typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGener
 
         HistogramType quadrantHistogram = ComputeMaskedImage1DHistogram(image, imageRegionQuadrant, mask, maskRegionQuadrant,
                                                                         quadrantHistogramProperties.NumberOfBinsPerDimension, rangeMins, rangeMaxs, quadrantHistogramProperties.AllowOutside, maskValue);
-        fullHistogram.insert(fullHistogram.end(), quadrantHistogram.begin(), quadrantHistogram.end());
+//        fullHistogram.insert(fullHistogram.end(), quadrantHistogram.begin(), quadrantHistogram.end());
+        quadrantHistograms.Histograms[quadrant] = quadrantHistogram;
       }
       else
       {
@@ -215,7 +217,7 @@ typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGener
   }
 
 //  std::cout << "Histogram has " << fullHistogram.size() << " bins." << std::endl;
-  return fullHistogram;
+  return quadrantHistograms;
 }
 
 #endif

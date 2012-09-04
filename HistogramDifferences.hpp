@@ -45,6 +45,27 @@ namespace HistogramDifferences
 //    * present in the idealHistogram, while a high score means that different colors are present. */
 //  static float HistogramCoherence(const HistogramType& idealHistogram, const HistogramType& queryHistogram);
 
+  template <typename TQuadrantHistogram, typename THistogramDifferenceFunctor>
+  float QuadrantHistogramDifference(const TQuadrantHistogram& idealHistogram, const TQuadrantHistogram& queryHistogram, THistogramDifferenceFunctor histogramDifferenceFunctor)
+  {
+    float difference = 0.0f;
+    for(unsigned int i = 0; i < 4; ++i)
+    {
+      if(idealHistogram.Valid[i] != queryHistogram.Valid[i])
+      {
+        std::stringstream ss;
+        ss << "QuadrantHistograms do not have the same Valid value for quadrant " << i;
+        throw std::runtime_error(ss.str());
+      }
+
+      if(idealHistogram.Valid[i] && queryHistogram.Valid[i])
+      {
+        difference += histogramDifferenceFunctor(idealHistogram.Histograms[i], queryHistogram.Histograms[i]);
+      }
+    }
+
+    return difference;
+  }
 
   template <typename THistogram>
   float HistogramCoherence(const THistogram& idealHistogram, const THistogram& queryHistogram)

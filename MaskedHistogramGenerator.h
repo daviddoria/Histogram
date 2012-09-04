@@ -67,8 +67,11 @@ public:
   /** The type of histogram generator to use to generate non-masked histograms internally. */
   typedef HistogramGenerator<TBinValue> HistogramGeneratorType;
 
-  /** The type of histogram that will be returned by functions in this class. */
+  /** The type of histogram that will be returned by single histogram functions in this class. */
   typedef typename HistogramGeneratorType::HistogramType HistogramType;
+
+  /** The type of histogram that will be returned by quadrant histogram functions in this class. */
+  typedef typename HistogramGeneratorType::QuadrantHistogramType QuadrantHistogramType;
 
   /** This function computes the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image.
     * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
@@ -108,7 +111,7 @@ public:
     * or if the ranges are computed adaptively. The 'NumberOfComponentsPerDimension' and 'AllowOutside' are always used.
     */
   template <typename TComponent, unsigned int Dimension>
-  static HistogramType ComputeQuadrantMaskedImage1DHistogramAdaptive
+  static QuadrantHistogramType ComputeQuadrantMaskedImage1DHistogramAdaptive
       (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
        const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const QuadrantHistogramProperties<itk::CovariantVector<TComponent, Dimension> >& quadrantHistogramProperties,
        const bool useProvidedRanges,
