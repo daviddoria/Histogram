@@ -16,12 +16,14 @@
  *
  *=========================================================================*/
 
-#ifndef HISTOGRAM_H
-#define HISTOGRAM_H
+#ifndef Histogram_H
+#define Histogram_H
 
 // STL
 #include <vector>
 
+/** This class is a simple wrapper around std::vector to give it functions
+  * named appropriately for histogram storage. */
 template <typename TBinValue>
 class Histogram : public std::vector<TBinValue>
 {
