@@ -32,6 +32,7 @@
 #include "Helpers/TypeTraits.h"
 
 #include "Histogram.h"
+#include "QuadrantHistogram.h"
 
 /** A collection of functions to compute histograms.
   * These are static functions in a class so that the bin type of the returned histograms can be specified more easily (as the class template paramter).
@@ -43,9 +44,12 @@
   *
   * which makes sense, versus:
   * typedef Histogram<int> HistogramType;
-  * typedef HistogramGeneratorType::HistogramType [what to call this?];
+  * typedef HistogramGeneratorType::HistogramType [what would this be called?];
+  *
+  *  \tparam TQuadrantProperties the type of QuadrantHistogramProperties to use. A default type is provided so that
+  *  in cases where we are not using quadrants, no type must be specified.
   */
-template <typename TBinValue>
+template <typename TBinValue, typename TQuadrantProperties = std::vector<float> >
 class HistogramGenerator
 {
 public:
@@ -54,7 +58,7 @@ public:
 //  typedef std::vector<TBinValue> HistogramType;
   typedef Histogram<TBinValue> HistogramType;
 
-  typedef QuadrantHistogram<HistogramType> QuadrantHistogramType;
+  typedef QuadrantHistogram<HistogramType, TQuadrantProperties> QuadrantHistogramType;
 
   /** Compute the histogram of a scalar itk::Image. This function is called by the ComputeImageHistogram1D overload
     * that does not match itk::VectorImage or itk::Image<CovariantVector>. */

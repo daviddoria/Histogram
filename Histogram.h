@@ -40,32 +40,4 @@ public:
   Histogram(const unsigned int numberOfBins, const TBinValue binValue) : VectorType(numberOfBins, binValue){}
 };
 
-/** This class stores 4 histograms, representing the histograms of the 4 quadrants of a region. */
-template <typename THistogram>
-struct QuadrantHistogram
-{
-  THistogram Histograms[4];
-
-  bool Valid[4];
-
-  QuadrantHistogram()
-  {
-    for(unsigned int i = 0; i < 4; ++i)
-    {
-      this->Valid[i] = false;
-    }
-  }
-
-  void NormalizeHistograms()
-  {
-    for(unsigned int i = 0; i < 4; ++i)
-    {
-      if(this->Valid[i])
-      {
-        Helpers::NormalizeVectorInPlace(this->Histograms[i]);
-      }
-    }
-  }
-};
-
 #endif

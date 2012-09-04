@@ -24,48 +24,17 @@
 // STL
 #include <vector>
 
-/** This class stores properties about quadrant histograms.
-  * \tparam TRangeContainer - A type that holds a scalar value for each dimension of the image.
-  * This is typically TImage::PixelType or std::vector<typename TypeTraits<typename TImage::PixelType>::ComponentType>.
-  */
-template <typename TRangeContainer>
-struct QuadrantHistogramProperties
-{
-  /** A collection of min ranges (one for each quadrant). */
-  TRangeContainer QuadrantMinRanges[4];
-
-  /** A collection of max ranges (one for each quadrant). */
-  TRangeContainer QuadrantMaxRanges[4];
-
-  /** A boolean for each quadrant indicating if it has enough valid pixels to be used. */
-  bool Used[4];
-
-  unsigned int NumberOfBinsPerDimension;
-
-  /** This flag determines if an error is produced if a value is found to be outside the requested range.
-    * If it is set to "false", the error is produced. If it is set to "true", values outside the range are
-    * added to the closesest end bin (highest bin or lowest bin, depending on if the value is above or below
-    * the requested range, respectively). */
-  bool AllowOutside;
-
-  QuadrantHistogramProperties() : NumberOfBinsPerDimension(30), AllowOutside(true)
-  {
-    for(unsigned int i = 0; i < 4; ++i)
-    {
-      this->Used[i] = false;
-    }
-  }
-};
-
 /** This collection of functions computes histograms for regions of images where only some of the pixels
-  * are considered, based on their corresponding value in a Mask. */
-template <typename TBinValue>
+  * are considered, based on their corresponding value in a Mask.
+  * \tparam TQuadrantProperties the type of QuadrantHistogramProperties to use. A default type is provided so that
+  * in cases where we are not using quadrants, no type must be specified. */
+template <typename TBinValue, typename TQuadrantProperties = std::vector<float> >
 class MaskedHistogramGenerator
 {
 public:
 
   /** The type of histogram generator to use to generate non-masked histograms internally. */
-  typedef HistogramGenerator<TBinValue> HistogramGeneratorType;
+  typedef HistogramGenerator<TBinValue, TQuadrantProperties> HistogramGeneratorType;
 
   /** The type of histogram that will be returned by single histogram functions in this class. */
   typedef typename HistogramGeneratorType::HistogramType HistogramType;

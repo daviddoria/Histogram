@@ -40,7 +40,8 @@ HistogramGenerator.hpp
 MaskedHistogramGenerator.h
 MaskedHistogramGenerator.hpp
 HistogramHelpers.hpp
-HistogramDifferences.hpp)
+HistogramDifferences.hpp
+QuadrantHistogram.h)
 
 SET(Histogram_BuildTests OFF CACHE BOOL "Build Histogram tests?")
 if(Histogram_BuildTests)

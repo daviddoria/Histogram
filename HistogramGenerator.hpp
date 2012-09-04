@@ -34,9 +34,9 @@
 // Submodules
 #include <ITKHelpers/ITKHelpers.h>
 
-template <typename TBinValue>
+template <typename TBinValue, typename TQuadrantProperties>
 template <typename TImage>
-typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ComputeScalarImageHistogram(
+typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType HistogramGenerator<TBinValue, TQuadrantProperties>::ComputeScalarImageHistogram(
     const TImage* image,
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
@@ -68,9 +68,9 @@ typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinVal
   return concatenatedHistograms;
 }
 
-template <typename TBinValue>
+template <typename TBinValue, typename TQuadrantProperties>
 template <typename TScalarImage>
-typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ComputeImageHistogram1D(
+typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType HistogramGenerator<TBinValue, TQuadrantProperties>::ComputeImageHistogram1D(
     const TScalarImage* image,
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
@@ -81,9 +81,9 @@ typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinVal
   return ComputeScalarImageHistogram(image, region, numberOfBinsPerDimensions, rangeMin, rangeMax, allowOutside);
 }
 
-template <typename TBinValue>
+template <typename TBinValue, typename TQuadrantProperties>
 template <typename TComponent, unsigned int Dimension>
-typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ComputeImageHistogram1D(
+typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType HistogramGenerator<TBinValue, TQuadrantProperties>::ComputeImageHistogram1D(
     const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* image,
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
@@ -119,9 +119,9 @@ typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinVal
   return concatenatedHistograms;
 }
 
-template <typename TBinValue>
+template <typename TBinValue, typename TQuadrantProperties>
 template <typename TComponent>
-typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ComputeImageHistogram1D(
+typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType HistogramGenerator<TBinValue, TQuadrantProperties>::ComputeImageHistogram1D(
     const itk::VectorImage<TComponent, 2>* image,
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
@@ -154,9 +154,9 @@ typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinVal
   return concatenatedHistograms;
 }
 
-template <typename TBinValue>
+template <typename TBinValue, typename TQuadrantProperties>
 template <typename TValue>
-typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ScalarHistogramAllowOutside(const std::vector<TValue>& values,
+typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType HistogramGenerator<TBinValue, TQuadrantProperties>::ScalarHistogramAllowOutside(const std::vector<TValue>& values,
                                                                                                                  const unsigned int numberOfBins,
                                                                                                                  const TValue& rangeMin, const TValue& rangeMax)
 {
@@ -194,9 +194,9 @@ typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinVal
   return bins;
 }
 
-template <typename TBinValue>
+template <typename TBinValue, typename TQuadrantProperties>
 template <typename TValue>
-typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinValue>::ScalarHistogram(const std::vector<TValue>& values,
+typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType HistogramGenerator<TBinValue, TQuadrantProperties>::ScalarHistogram(const std::vector<TValue>& values,
                                                                                                      const unsigned int numberOfBins,
                                                                                                      const TValue& rangeMin, const TValue& rangeMax)
 {

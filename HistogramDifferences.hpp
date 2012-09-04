@@ -51,14 +51,14 @@ namespace HistogramDifferences
     float difference = 0.0f;
     for(unsigned int i = 0; i < 4; ++i)
     {
-      if(idealHistogram.Valid[i] != queryHistogram.Valid[i])
+      if(idealHistogram.Properties.Valid[i] != queryHistogram.Properties.Valid[i])
       {
         std::stringstream ss;
         ss << "QuadrantHistograms do not have the same Valid value for quadrant " << i;
         throw std::runtime_error(ss.str());
       }
 
-      if(idealHistogram.Valid[i] && queryHistogram.Valid[i])
+      if(idealHistogram.Properties.Valid[i] && queryHistogram.Properties.Valid[i])
       {
         difference += histogramDifferenceFunctor(idealHistogram.Histograms[i], queryHistogram.Histograms[i]);
       }

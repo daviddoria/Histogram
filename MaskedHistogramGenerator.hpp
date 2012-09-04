@@ -21,9 +21,9 @@
 
 #include "MaskedHistogramGenerator.h"
 
-template <typename TBinValue>
+template <typename TBinValue, typename TQuadrantProperties>
 template <typename TComponent, typename TRangeContainer>
-typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGenerator<TBinValue>::ComputeMaskedImage1DHistogram(
+typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::ComputeMaskedImage1DHistogram(
                 const itk::VectorImage<TComponent, 2>* image,
                 const itk::ImageRegion<2>& imageRegion,
                 const Mask* const mask,
@@ -78,9 +78,9 @@ typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGener
   return concatenatedHistograms;
 }
 
-template <typename TBinValue>
+template <typename TBinValue, typename TQuadrantProperties>
 template <typename TComponent, unsigned int Dimension, typename TRangeContainer>
-typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGenerator<TBinValue>::ComputeMaskedImage1DHistogram
+typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::ComputeMaskedImage1DHistogram
     (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
      const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBinsPerDimension,
      const TRangeContainer& rangeMins, const TRangeContainer& rangeMaxs, const bool allowOutside, const unsigned char maskValue)
@@ -132,9 +132,9 @@ typename MaskedHistogramGenerator<TBinValue>::HistogramType MaskedHistogramGener
   return concatenatedHistograms;
 }
 
-template <typename TBinValue>
+template <typename TBinValue, typename TQuadrantProperties>
 template <typename TComponent, unsigned int Dimension>
-typename MaskedHistogramGenerator<TBinValue>::QuadrantHistogramType MaskedHistogramGenerator<TBinValue>::ComputeQuadrantMaskedImage1DHistogramAdaptive
+typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHistogramType MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::ComputeQuadrantMaskedImage1DHistogramAdaptive
     (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
      const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const QuadrantHistogramProperties<itk::CovariantVector<TComponent, Dimension> > &quadrantHistogramProperties,
      const bool useProvidedRanges,
@@ -151,7 +151,7 @@ typename MaskedHistogramGenerator<TBinValue>::QuadrantHistogramType MaskedHistog
   {
     for(unsigned int quadrant = 0; quadrant < 4; ++quadrant)
     {
-      if(quadrantHistogramProperties.Used[quadrant])
+      if(quadrantHistogramProperties.Valid[quadrant])
       {
         itk::ImageRegion<2> maskRegionQuadrant = ITKHelpers::GetQuadrant(maskRegion, quadrant);
         itk::ImageRegion<2> imageRegionQuadrant = ITKHelpers::GetQuadrant(imageRegion, quadrant);
@@ -169,6 +169,7 @@ typename MaskedHistogramGenerator<TBinValue>::QuadrantHistogramType MaskedHistog
 
         //fullHistogram.insert(fullHistogram.end(), quadrantHistogram.begin(), quadrantHistogram.end());
         quadrantHistograms.Histograms[quadrant] = quadrantHistogram;
+        quadrantHistograms.Properties.Valid[quadrant] = true;
       }
     }
 
@@ -202,16 +203,17 @@ typename MaskedHistogramGenerator<TBinValue>::QuadrantHistogramType MaskedHistog
       // Only calculate and append the histogram if there are enough valid pixels
       if(validPixelRatio > minValidPixelRatio)
       {
-        returnQuadrantHistogramProperties.Used[quadrant] = true;
+        returnQuadrantHistogramProperties.Valid[quadrant] = true;
 
         HistogramType quadrantHistogram = ComputeMaskedImage1DHistogram(image, imageRegionQuadrant, mask, maskRegionQuadrant,
                                                                         quadrantHistogramProperties.NumberOfBinsPerDimension, rangeMins, rangeMaxs, quadrantHistogramProperties.AllowOutside, maskValue);
 //        fullHistogram.insert(fullHistogram.end(), quadrantHistogram.begin(), quadrantHistogram.end());
         quadrantHistograms.Histograms[quadrant] = quadrantHistogram;
+        quadrantHistograms.Properties.Valid[quadrant] = true;
       }
       else
       {
-        returnQuadrantHistogramProperties.Used[quadrant] = false;
+        returnQuadrantHistogramProperties.Valid[quadrant] = false;
       }
     }
   }
