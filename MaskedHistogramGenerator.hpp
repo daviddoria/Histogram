@@ -186,23 +186,23 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHisto
       itk::ImageRegion<2> imageRegionQuadrant = ITKHelpers::GetQuadrant(imageRegion, quadrant);
 
       std::vector<itk::Index<2> > validPixelIndices = mask->GetValidPixelsInRegion(imageRegionQuadrant);
-      std::vector<PixelType> validPixels = ITKHelpers::GetPixelValues(image, validPixelIndices);
-      unsigned int numberOfValidPixels = validPixels.size();
-
-      PixelType rangeMins;
-      Helpers::MinOfAllIndices(validPixels, rangeMins);
-      returnQuadrantHistogramProperties.QuadrantMinRanges[quadrant] = rangeMins;
-
-      PixelType rangeMaxs;
-      Helpers::MaxOfAllIndices(validPixels, rangeMaxs);
-      returnQuadrantHistogramProperties.QuadrantMaxRanges[quadrant] = rangeMaxs;
 
       // Compute the ratio of valid pixels to total pixels in the quadrant
-      float validPixelRatio = static_cast<float>(numberOfValidPixels) / static_cast<float>(maskRegionQuadrant.GetNumberOfPixels());
+      float validPixelRatio = static_cast<float>(validPixelIndices.size()) / static_cast<float>(maskRegionQuadrant.GetNumberOfPixels());
 
       // Only calculate and append the histogram if there are enough valid pixels
       if(validPixelRatio > minValidPixelRatio)
       {
+        std::vector<PixelType> validPixels = ITKHelpers::GetPixelValues(image, validPixelIndices);
+
+        PixelType rangeMins;
+        Helpers::MinOfAllIndices(validPixels, rangeMins);
+        returnQuadrantHistogramProperties.QuadrantMinRanges[quadrant] = rangeMins;
+
+        PixelType rangeMaxs;
+        Helpers::MaxOfAllIndices(validPixels, rangeMaxs);
+        returnQuadrantHistogramProperties.QuadrantMaxRanges[quadrant] = rangeMaxs;
+
         returnQuadrantHistogramProperties.Valid[quadrant] = true;
 
         HistogramType quadrantHistogram = ComputeMaskedImage1DHistogram(image, imageRegionQuadrant, mask, maskRegionQuadrant,
