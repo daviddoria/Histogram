@@ -167,8 +167,8 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHisto
                                                                         quadrantHistogramProperties.NumberOfBinsPerDimension, quadrantHistogramProperties.QuadrantMinRanges[quadrant],
                                                                         quadrantHistogramProperties.QuadrantMaxRanges[quadrant], quadrantHistogramProperties.AllowOutside, maskValue);
 
-        //fullHistogram.insert(fullHistogram.end(), quadrantHistogram.begin(), quadrantHistogram.end());
         quadrantHistograms.Histograms[quadrant] = quadrantHistogram;
+
         quadrantHistograms.Properties.Valid[quadrant] = true;
       }
     }

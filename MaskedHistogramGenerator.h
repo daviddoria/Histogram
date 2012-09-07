@@ -26,9 +26,8 @@
 
 /** This collection of functions computes histograms for regions of images where only some of the pixels
   * are considered, based on their corresponding value in a Mask.
-  * \tparam TQuadrantProperties the type of QuadrantHistogramProperties to use. A default type is provided so that
-  * in cases where we are not using quadrants, no type must be specified. */
-template <typename TBinValue, typename TQuadrantProperties = std::vector<float> >
+  * \tparam TQuadrantProperties the type of QuadrantHistogramProperties to use. */
+template <typename TBinValue, typename TQuadrantProperties = QuadrantHistogramProperties<> >
 class MaskedHistogramGenerator
 {
 public:

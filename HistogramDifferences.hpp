@@ -46,7 +46,11 @@ namespace HistogramDifferences
 //  static float HistogramCoherence(const HistogramType& idealHistogram, const HistogramType& queryHistogram);
 
   template <typename TQuadrantHistogram, typename THistogramDifferenceFunctor>
-  float QuadrantHistogramDifference(const TQuadrantHistogram& idealHistogram, const TQuadrantHistogram& queryHistogram, THistogramDifferenceFunctor histogramDifferenceFunctor)
+  float QuadrantHistogramDifference(const TQuadrantHistogram& idealHistogram, const TQuadrantHistogram& queryHistogram,
+                                    THistogramDifferenceFunctor histogramDifferenceFunctor = [](const typename TQuadrantHistogram::HistogramType& a, const typename TQuadrantHistogram::HistogramType& b)
+                                      {
+                                      return HistogramDifference(a,b);
+                                      })
   {
     float difference = 0.0f;
     for(unsigned int i = 0; i < 4; ++i)

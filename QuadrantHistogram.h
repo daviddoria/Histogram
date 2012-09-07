@@ -25,7 +25,7 @@
   * \tparam TRangeContainer - A type that holds a scalar value for each dimension of the image.
   * This is typically TImage::PixelType or std::vector<typename TypeTraits<typename TImage::PixelType>::ComponentType>.
   */
-template <typename TRangeContainer>
+template <typename TRangeContainer = std::vector<float> >
 struct QuadrantHistogramProperties
 {
   /** A collection of min ranges (one for each quadrant). */
@@ -59,6 +59,9 @@ struct QuadrantHistogramProperties
 template <typename THistogram, typename TQuadrantProperties>
 struct QuadrantHistogram
 {
+  typedef THistogram HistogramType;
+  typedef TQuadrantProperties QuadrantPropertiesType;
+
   TQuadrantProperties Properties;
 
   THistogram Histograms[4];
