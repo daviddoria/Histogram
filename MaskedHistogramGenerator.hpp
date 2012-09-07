@@ -136,9 +136,8 @@ template <typename TBinValue, typename TQuadrantProperties>
 template <typename TComponent, unsigned int Dimension>
 typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHistogramType MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::ComputeQuadrantMaskedImage1DHistogramAdaptive
     (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
-     const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const QuadrantHistogramProperties<itk::CovariantVector<TComponent, Dimension> > &quadrantHistogramProperties,
-     const bool useProvidedRanges,
-     const unsigned char maskValue, QuadrantHistogramProperties<itk::CovariantVector<TComponent, Dimension> > &returnQuadrantHistogramProperties)
+     const Mask* const mask, const itk::ImageRegion<2>& maskRegion, QuadrantHistogramProperties<itk::CovariantVector<TComponent, Dimension> > quadrantHistogramProperties,
+     const bool useProvidedRanges, const unsigned char maskValue)
 {
 
   typedef itk::CovariantVector<TComponent, Dimension> PixelType;
@@ -168,12 +167,8 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHisto
                                                                         quadrantHistogramProperties.QuadrantMaxRanges[quadrant], quadrantHistogramProperties.AllowOutside, maskValue);
 
         quadrantHistograms.Histograms[quadrant] = quadrantHistogram;
-
-        quadrantHistograms.Properties.Valid[quadrant] = true;
       }
     }
-
-    returnQuadrantHistogramProperties = quadrantHistogramProperties;
   }
   else
   {
@@ -197,26 +192,26 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHisto
 
         PixelType rangeMins;
         Helpers::MinOfAllIndices(validPixels, rangeMins);
-        returnQuadrantHistogramProperties.QuadrantMinRanges[quadrant] = rangeMins;
+        quadrantHistogramProperties.QuadrantMinRanges[quadrant] = rangeMins;
 
         PixelType rangeMaxs;
         Helpers::MaxOfAllIndices(validPixels, rangeMaxs);
-        returnQuadrantHistogramProperties.QuadrantMaxRanges[quadrant] = rangeMaxs;
-
-        returnQuadrantHistogramProperties.Valid[quadrant] = true;
+        quadrantHistogramProperties.QuadrantMaxRanges[quadrant] = rangeMaxs;
 
         HistogramType quadrantHistogram = ComputeMaskedImage1DHistogram(image, imageRegionQuadrant, mask, maskRegionQuadrant,
                                                                         quadrantHistogramProperties.NumberOfBinsPerDimension, rangeMins, rangeMaxs, quadrantHistogramProperties.AllowOutside, maskValue);
 //        fullHistogram.insert(fullHistogram.end(), quadrantHistogram.begin(), quadrantHistogram.end());
         quadrantHistograms.Histograms[quadrant] = quadrantHistogram;
-        quadrantHistograms.Properties.Valid[quadrant] = true;
+        quadrantHistogramProperties.Valid[quadrant] = true;
       }
       else
       {
-        returnQuadrantHistogramProperties.Valid[quadrant] = false;
+        quadrantHistogramProperties.Valid[quadrant] = false;
       }
-    }
-  }
+    } // end quadrant for loop
+  } // end else useProvidedRanges
+
+  quadrantHistograms.Properties = quadrantHistogramProperties;
 
 //  std::cout << "Histogram has " << fullHistogram.size() << " bins." << std::endl;
   return quadrantHistograms;

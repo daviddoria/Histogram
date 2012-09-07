@@ -77,7 +77,8 @@ struct QuadrantHistogram
     {
       if(this->Properties.Valid[i])
       {
-        Helpers::NormalizeVectorInPlace(this->Histograms[i]);
+//        Helpers::NormalizeVectorInPlace(this->Histograms[i]);
+        this->Histograms[i].Normalize();
       }
     }
   }

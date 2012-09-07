@@ -38,6 +38,11 @@ public:
   Histogram(const unsigned int numberOfBins) : VectorType(numberOfBins){}
 
   Histogram(const unsigned int numberOfBins, const TBinValue binValue) : VectorType(numberOfBins, binValue){}
+
+  void Normalize()
+  {
+    Helpers::NormalizeVectorInPlace(*this);
+  }
 };
 
 #endif
