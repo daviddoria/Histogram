@@ -19,6 +19,9 @@
 #ifndef Histogram_H
 #define Histogram_H
 
+// Submodules
+#include <Helpers/Helpers.h>
+
 // STL
 #include <vector>
 
@@ -43,6 +46,12 @@ public:
   {
     Helpers::NormalizeVectorInPlace(*this);
   }
+
+  void Print()
+  {
+    Helpers::Output(*this);
+  }
+
 };
 
 #endif

@@ -21,39 +21,7 @@
 
 #include "Histogram.h"
 
-/** This class stores properties about quadrant histograms.
-  * \tparam TRangeContainer - A type that holds a scalar value for each dimension of the image.
-  * This is typically TImage::PixelType or std::vector<typename TypeTraits<typename TImage::PixelType>::ComponentType>.
-  */
-template <typename TRangeContainer = std::vector<float> >
-struct QuadrantHistogramProperties
-{
-  /** A collection of min ranges (one for each quadrant). */
-  TRangeContainer QuadrantMinRanges[4];
-
-  /** A collection of max ranges (one for each quadrant). */
-  TRangeContainer QuadrantMaxRanges[4];
-
-  unsigned int NumberOfBinsPerDimension;
-
-  /** This flag determines if an error is produced if a value is found to be outside the requested range.
-    * If it is set to "false", the error is produced. If it is set to "true", values outside the range are
-    * added to the closesest end bin (highest bin or lowest bin, depending on if the value is above or below
-    * the requested range, respectively). */
-  bool AllowOutside;
-
-
-  /** A boolean for each quadrant indicating if it was computed (if the image patch had enough valid pixels to be used). */
-  bool Valid[4];
-
-  QuadrantHistogramProperties() : NumberOfBinsPerDimension(30), AllowOutside(true)
-  {
-    for(unsigned int i = 0; i < 4; ++i)
-    {
-      this->Valid[i] = false;
-    }
-  }
-};
+#include "QuadrantHistogramProperties.h"
 
 /** This class stores 4 histograms, representing the histograms of the 4 quadrants of a region. */
 template <typename THistogram, typename TQuadrantProperties>
@@ -62,26 +30,54 @@ struct QuadrantHistogram
   typedef THistogram HistogramType;
   typedef TQuadrantProperties QuadrantPropertiesType;
 
+  /** Store the properties that were used to compute the histograms. */
   TQuadrantProperties Properties;
 
+  /** Store the 4 histograms. */
   THistogram Histograms[4];
 
+  /** Constructor. */
   QuadrantHistogram()
   {
 
   }
 
+  /** Normalize all of the valid histograms. */
   void NormalizeHistograms()
   {
     for(unsigned int i = 0; i < 4; ++i)
     {
       if(this->Properties.Valid[i])
       {
-//        Helpers::NormalizeVectorInPlace(this->Histograms[i]);
         this->Histograms[i].Normalize();
       }
     }
   }
+
+  /** Print all of the valid histograms to stdout. */
+  void PrintHistograms()
+  {
+    std::cout << "Valid quadrants: ";
+    for(unsigned int i = 0; i < 4; ++i)
+    {
+      if(this->Properties.Valid[i])
+      {
+        std::cout << i << " ";
+      }
+    }
+
+    std::cout << std::endl;
+
+    for(unsigned int i = 0; i < 4; ++i)
+    {
+      if(this->Properties.Valid[i])
+      {
+        std::cout << "Quadrant " << i << ": ";
+        this->Histograms[i].Print();
+      }
+    }
+  }
+
 };
 
 #endif

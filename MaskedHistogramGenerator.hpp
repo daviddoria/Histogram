@@ -146,6 +146,31 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHisto
 
   QuadrantHistogramType quadrantHistograms;
 
+  // If the properties have not been used before, determine which quadrants are valid.
+  if(quadrantHistogramProperties.Initialized == false)
+  {
+    for(unsigned int quadrant = 0; quadrant < 4; ++quadrant)
+    {
+      itk::ImageRegion<2> maskRegionQuadrant = ITKHelpers::GetQuadrant(maskRegion, quadrant);
+      std::vector<itk::Index<2> > validPixelIndices = mask->GetValidPixelsInRegion(maskRegionQuadrant);
+
+      unsigned int numberOfValidPixels = validPixelIndices.size();
+      float requiredRatio = 0.25f; // At least a quarter of the quadrant must consist of valid pixels.
+      float ratioOfValidPixels = static_cast<float>(numberOfValidPixels) / static_cast<float>(maskRegionQuadrant.GetNumberOfPixels());
+      std::cout<< "ratioOfValidPixels: " << ratioOfValidPixels << std::endl;
+
+      if(ratioOfValidPixels < requiredRatio)
+      {
+        quadrantHistogramProperties.Valid[quadrant] = false;
+      }
+      else
+      {
+        quadrantHistogramProperties.Valid[quadrant] = true;
+      }
+    }
+    quadrantHistogramProperties.Initialized = true;
+  }
+
   if(useProvidedRanges)
   {
     for(unsigned int quadrant = 0; quadrant < 4; ++quadrant)
@@ -155,12 +180,12 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHisto
         itk::ImageRegion<2> maskRegionQuadrant = ITKHelpers::GetQuadrant(maskRegion, quadrant);
         itk::ImageRegion<2> imageRegionQuadrant = ITKHelpers::GetQuadrant(imageRegion, quadrant);
 
-        std::vector<itk::Index<2> > validPixelIndices = mask->GetValidPixelsInRegion(imageRegionQuadrant);
+        std::vector<itk::Index<2> > validPixelIndices = mask->GetValidPixelsInRegion(maskRegionQuadrant);
         std::vector<typename ImageType::PixelType> validPixels = ITKHelpers::GetPixelValues(image, validPixelIndices);
         unsigned int numberOfValidPixels = validPixels.size();
-        if(numberOfValidPixels == 0)
+        if(numberOfValidPixels < maskRegionQuadrant.GetNumberOfPixels() / 4)
         {
-          continue;
+          throw std::runtime_error("ComputeQuadrantMaskedImage1DHistogramAdaptive was told to use this quadrant, but there are no valid pixels!");
         }
         HistogramType quadrantHistogram = ComputeMaskedImage1DHistogram(image, imageRegionQuadrant, mask, maskRegionQuadrant,
                                                                         quadrantHistogramProperties.NumberOfBinsPerDimension, quadrantHistogramProperties.QuadrantMinRanges[quadrant],
@@ -170,23 +195,16 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHisto
       }
     }
   }
-  else
+  else // !useProvidedRanges
   {
-    // Ignore the quadrant if it doesn't contain at least this ratio of valid pixels (i.e. too much of the quadrant is the hole)
-    float minValidPixelRatio = 0.2f; // If less than 20% of the pixels in a quadrant are valid, do not consider the quadrant at all
-
     for(unsigned int quadrant = 0; quadrant < 4; ++quadrant)
     {
       itk::ImageRegion<2> maskRegionQuadrant = ITKHelpers::GetQuadrant(maskRegion, quadrant);
       itk::ImageRegion<2> imageRegionQuadrant = ITKHelpers::GetQuadrant(imageRegion, quadrant);
 
-      std::vector<itk::Index<2> > validPixelIndices = mask->GetValidPixelsInRegion(imageRegionQuadrant);
+      std::vector<itk::Index<2> > validPixelIndices = mask->GetValidPixelsInRegion(maskRegionQuadrant);
 
-      // Compute the ratio of valid pixels to total pixels in the quadrant
-      float validPixelRatio = static_cast<float>(validPixelIndices.size()) / static_cast<float>(maskRegionQuadrant.GetNumberOfPixels());
-
-      // Only calculate and append the histogram if there are enough valid pixels
-      if(validPixelRatio > minValidPixelRatio)
+      if(quadrantHistogramProperties.Valid[quadrant])
       {
         std::vector<PixelType> validPixels = ITKHelpers::GetPixelValues(image, validPixelIndices);
 

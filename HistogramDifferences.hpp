@@ -122,6 +122,8 @@ namespace HistogramDifferences
   template <typename THistogram>
   float HistogramDifference(const THistogram& histogram1, const THistogram& histogram2)
   {
+    static_assert(std::is_signed<typename THistogram::value_type>::value, "In HistogramDifference, T must be a signed!");
+
     // assert(TBinValue is a signed type)
     if(histogram1.size() != histogram2.size())
     {
