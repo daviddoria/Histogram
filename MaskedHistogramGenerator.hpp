@@ -149,6 +149,7 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHisto
   // If the properties have not been used before, determine which quadrants are valid.
   if(quadrantHistogramProperties.Initialized == false)
   {
+//    std::cout << "Initializing quadrantHistogramProperties..." << std::endl;
     for(unsigned int quadrant = 0; quadrant < 4; ++quadrant)
     {
       itk::ImageRegion<2> maskRegionQuadrant = ITKHelpers::GetQuadrant(maskRegion, quadrant);
@@ -157,7 +158,7 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHisto
       unsigned int numberOfValidPixels = validPixelIndices.size();
       float requiredRatio = 0.25f; // At least a quarter of the quadrant must consist of valid pixels.
       float ratioOfValidPixels = static_cast<float>(numberOfValidPixels) / static_cast<float>(maskRegionQuadrant.GetNumberOfPixels());
-      std::cout<< "ratioOfValidPixels: " << ratioOfValidPixels << std::endl;
+//      std::cout<< "ratioOfValidPixels: " << ratioOfValidPixels << std::endl;
 
       if(ratioOfValidPixels < requiredRatio)
       {

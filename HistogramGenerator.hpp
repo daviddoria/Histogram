@@ -156,9 +156,10 @@ typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType Histo
 
 template <typename TBinValue, typename TQuadrantProperties>
 template <typename TValue>
-typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType HistogramGenerator<TBinValue, TQuadrantProperties>::ScalarHistogramAllowOutside(const std::vector<TValue>& values,
-                                                                                                                 const unsigned int numberOfBins,
-                                                                                                                 const TValue& rangeMin, const TValue& rangeMax)
+typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType
+HistogramGenerator<TBinValue, TQuadrantProperties>::ScalarHistogramAllowOutside(const std::vector<TValue>& values,
+                                                                                const unsigned int numberOfBins,
+                                                                                const TValue& rangeMin, const TValue& rangeMax)
 {
   assert(numberOfBins > 0);
 
