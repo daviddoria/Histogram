@@ -134,11 +134,15 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType
 
 template <typename TBinValue, typename TQuadrantProperties>
 template <typename TComponent, unsigned int Dimension>
-typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHistogramType MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::ComputeQuadrantMaskedImage1DHistogramAdaptive
-    (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
-     const Mask* const mask, const itk::ImageRegion<2>& maskRegion, QuadrantHistogramProperties<itk::CovariantVector<TComponent, Dimension> > quadrantHistogramProperties,
+typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHistogramType
+MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::ComputeQuadrantMaskedImage1DHistogramAdaptive
+    (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, itk::ImageRegion<2> imageRegion,
+     const Mask* const mask, itk::ImageRegion<2> maskRegion, QuadrantHistogramProperties<itk::CovariantVector<TComponent, Dimension> > quadrantHistogramProperties,
      const bool useProvidedRanges, const unsigned char maskValue)
 {
+  // Crop the regions
+  imageRegion = ITKHelpers::CropRegionAtPosition(imageRegion, image->GetLargestPossibleRegion(), maskRegion);
+  maskRegion.Crop(image->GetLargestPossibleRegion());
 
   typedef itk::CovariantVector<TComponent, Dimension> PixelType;
 

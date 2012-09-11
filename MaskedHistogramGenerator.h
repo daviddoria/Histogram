@@ -80,8 +80,9 @@ public:
     */
   template <typename TComponent, unsigned int Dimension>
   static QuadrantHistogramType ComputeQuadrantMaskedImage1DHistogramAdaptive
-      (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
-       const Mask* const mask, const itk::ImageRegion<2>& maskRegion, QuadrantHistogramProperties<itk::CovariantVector<TComponent, Dimension> > quadrantHistogramProperties,
+      (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, itk::ImageRegion<2> imageRegion,
+       const Mask* const mask, itk::ImageRegion<2> maskRegion,
+       QuadrantHistogramProperties<itk::CovariantVector<TComponent, Dimension> > quadrantHistogramProperties,
        const bool useProvidedRanges, const unsigned char maskValue);
 
 }; // end class MaskedHistogramGenerator
