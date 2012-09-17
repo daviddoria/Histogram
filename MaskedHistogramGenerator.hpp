@@ -133,6 +133,42 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType
 }
 
 template <typename TBinValue, typename TQuadrantProperties>
+template <typename TImage, typename TRangeValue>
+typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::ComputeMaskedScalarImageHistogram
+    (const TImage* const image, const itk::ImageRegion<2>& imageRegion,
+     const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
+     const TRangeValue& rangeMin, const TRangeValue& rangeMax, const bool allowOutside, const unsigned char maskValue)
+{
+  std::vector<itk::Index<2> > maskIndices = ITKHelpers::GetPixelsWithValueInRegion(mask, maskRegion, maskValue);
+
+  // Compute the corresponding locations in the imageRegion
+  std::vector<itk::Index<2> > imageIndices(maskIndices.size());
+  itk::Offset<2> maskRegionToImageRegionOffset = imageRegion.GetIndex() - maskRegion.GetIndex(); // The offset from the maskRegion to the imageRegion
+  for(size_t i = 0; i < maskIndices.size(); ++i)
+  {
+    imageIndices[i] = maskIndices[i] + maskRegionToImageRegionOffset;
+  }
+
+  HistogramType histogram;
+
+  // Get this channels masked scalar values
+  std::vector<typename TImage::PixelType> validPixels =
+      ITKHelpers::GetPixelValues(image, imageIndices);
+
+  // Compute the histogram of the scalar values
+  if(allowOutside)
+  {
+    histogram = HistogramGeneratorType::ScalarHistogramAllowOutside(validPixels, numberOfBins, rangeMin, rangeMax);
+  }
+  else
+  {
+    histogram = HistogramGeneratorType::ScalarHistogram(validPixels, numberOfBins, rangeMin, rangeMax);
+  }
+
+  return histogram;
+}
+
+template <typename TBinValue, typename TQuadrantProperties>
 template <typename TComponent, unsigned int Dimension>
 typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHistogramType
 MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::ComputeQuadrantMaskedImage1DHistogramAdaptive

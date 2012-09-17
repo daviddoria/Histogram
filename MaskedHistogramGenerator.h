@@ -65,6 +65,15 @@ public:
        const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
        const TRangeContainer& rangeMins, const TRangeContainer& rangeMaxs, const bool allowOutside, const unsigned char maskValue);
 
+  /** This function computes the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image.
+    * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
+    * a target mask to a source patch. This function is for itk::Image<CovariantVector>. */
+  template <typename TImage, typename TRangeValue>
+  static HistogramType ComputeMaskedScalarImageHistogram
+      (const TImage* const image, const itk::ImageRegion<2>& imageRegion,
+       const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
+       const TRangeValue& rangeMin, const TRangeValue& rangeMax, const bool allowOutside, const unsigned char maskValue);
+
   /** This function computes and concatenates the histogram of valid/hole (specified by 'maskValue') pixels
     * (according to 'mask') in an image in each of the 4 quadrants using an adaptive range for each channel of each quadrant.
     * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
