@@ -143,6 +143,35 @@ namespace HistogramDifferences
     return difference;
   }
 
+  /** This function counts how many pixels in 'histogramToCheck' are in bins that aren't occupied in 'idealHistogram' */
+  template <typename THistogram>
+  unsigned int CountNewColors(const THistogram& idealHistogram, const THistogram& histogramToCheck)
+  {
+    static_assert(std::is_integral<typename THistogram::value_type>::value, "In CountNewColors, T must be an integral type!");
+    if(idealHistogram.size() != histogramToCheck.size())
+    {
+      std::stringstream ss;
+      ss << "Histograms must be the same size! idealHistogram is " << idealHistogram.size()
+         << " while histogramToCheck is " << histogramToCheck.size();
+      throw std::runtime_error(ss.str());
+    }
+
+    unsigned int numberOfPixelsWithNewColor = 0;
+
+    unsigned int numberToConsiderEmpty = 3; // If this number of fewer pixels are in a bin, we consider it empty
+    // This is just to prevent random outliers from causing a bin to be erroneously empty/occupied.
+    for(unsigned int bin = 0; bin < idealHistogram.size(); ++bin)
+    {
+      if((idealHistogram[bin] <= numberToConsiderEmpty) && (histogramToCheck[bin] > numberToConsiderEmpty))
+      {
+        numberOfPixelsWithNewColor += (histogramToCheck[bin] - idealHistogram[bin]);
+//        numberOfNewColorBins++;
+      }
+    }
+
+    return numberOfPixelsWithNewColor;
+  }
+
   template <typename THistogram>
   float HistogramIntersection(const THistogram& histogram1, const THistogram& histogram2)
   {
