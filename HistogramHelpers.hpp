@@ -19,9 +19,12 @@
 #ifndef HistogramHelpers_H
 #define HistogramHelpers_H
 
+// Submodules
+#include <Helpers/Helpers.h>
 // STL
 #include <string>
 #include <vector>
+#include <fstream>
 
 namespace HistogramHelpers
 {
@@ -33,6 +36,19 @@ namespace HistogramHelpers
     for(unsigned int i = 0; i < histogram.size(); ++i)
     {
       fout << histogram[i] << " ";
+    }
+
+    fout.close();
+  }
+
+  /** Write the histogram bin counts to a file. */
+  template <typename THistogram>
+  static void WriteHistogramZeroPadded(const THistogram& histogram, const std::string& filename)
+  {
+    std::ofstream fout(filename.c_str());
+    for(unsigned int i = 0; i < histogram.size(); ++i)
+    {
+      fout << Helpers::ZeroPad(histogram[i], 3) << " ";
     }
 
     fout.close();

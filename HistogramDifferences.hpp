@@ -157,17 +157,21 @@ namespace HistogramDifferences
     }
 
     unsigned int numberOfPixelsWithNewColor = 0;
+    unsigned int numberOfNewColorBins = 0;
 
-    unsigned int numberToConsiderEmpty = 3; // If this number of fewer pixels are in a bin, we consider it empty
+    int numberToConsiderEmpty = 3; // If this number of fewer pixels are in a bin, we consider it empty
     // This is just to prevent random outliers from causing a bin to be erroneously empty/occupied.
     for(unsigned int bin = 0; bin < idealHistogram.size(); ++bin)
     {
       if((idealHistogram[bin] <= numberToConsiderEmpty) && (histogramToCheck[bin] > numberToConsiderEmpty))
       {
         numberOfPixelsWithNewColor += (histogramToCheck[bin] - idealHistogram[bin]);
-//        numberOfNewColorBins++;
+        numberOfNewColorBins++;
       }
     }
+
+//    std::cout << "There are " << numberOfNewColorBins
+//              << " new occupied bins (numberOfPixelsWithNewColor = " << numberOfPixelsWithNewColor << ")." << std::endl;
 
     return numberOfPixelsWithNewColor;
   }

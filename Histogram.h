@@ -52,6 +52,14 @@ public:
     Helpers::Output(*this);
   }
 
+  void PrintPadded()
+  {
+    for(size_t i = 0; i < this->size(); ++i)
+    {
+      std::cout << Helpers::ZeroPad(this->at(i), 3);
+    }
+  }
+
 };
 
 #endif
