@@ -143,9 +143,11 @@ namespace HistogramDifferences
     return difference;
   }
 
-  /** This function counts how many pixels in 'histogramToCheck' are in bins that aren't occupied in 'idealHistogram' */
+  /** This function counts how many pixels in 'histogramToCheck' are in bins that aren't occupied in 'idealHistogram'.
+    * 'numberToConsiderEmpty': If this number of fewer pixels are in a bin, we consider it empty
+    * This is just to prevent random outliers from causing a bin to be erroneously empty/occupied. */
   template <typename THistogram>
-  unsigned int CountNewColors(const THistogram& idealHistogram, const THistogram& histogramToCheck)
+  unsigned int CountNewColors(const THistogram& idealHistogram, const THistogram& histogramToCheck, const int numberToConsiderEmpty = 0)
   {
     static_assert(std::is_integral<typename THistogram::value_type>::value, "In CountNewColors, T must be an integral type!");
     if(idealHistogram.size() != histogramToCheck.size())
@@ -159,8 +161,6 @@ namespace HistogramDifferences
     unsigned int numberOfPixelsWithNewColor = 0;
     unsigned int numberOfNewColorBins = 0;
 
-    int numberToConsiderEmpty = 3; // If this number of fewer pixels are in a bin, we consider it empty
-    // This is just to prevent random outliers from causing a bin to be erroneously empty/occupied.
     for(unsigned int bin = 0; bin < idealHistogram.size(); ++bin)
     {
       if((idealHistogram[bin] <= numberToConsiderEmpty) && (histogramToCheck[bin] > numberToConsiderEmpty))
@@ -181,8 +181,7 @@ namespace HistogramDifferences
   {
     if(histogram1.size() != histogram2.size())
     {
-      std::cerr << "Histograms must be the same size!" << std::endl;
-      return 0;
+      throw std::runtime_error("Histograms must be the same size!");
     }
 
     typedef typename THistogram::BinValueType BinValueType;
