@@ -34,6 +34,9 @@
 // Submodules
 #include <ITKHelpers/ITKHelpers.h>
 
+// Boost
+#include "boost/multi_array.hpp"
+
 template <typename TBinValue, typename TQuadrantProperties>
 template <typename TImage>
 typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType HistogramGenerator<TBinValue, TQuadrantProperties>::ComputeScalarImageHistogram(
@@ -302,5 +305,121 @@ typename HistogramGenerator<TBinValue>::HistogramType HistogramGenerator<TBinVal
   return histogram;
 }*/
 
+
+template <typename TBinValue, typename TQuadrantProperties>
+template <typename TComponent, unsigned int Dimension>
+typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType HistogramGenerator<TBinValue, TQuadrantProperties>::ComputeImageJointChannelHistogram(
+    const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* image,
+    const itk::ImageRegion<2>& region,
+    const unsigned int numberOfBinsPerDimension,
+    const itk::CovariantVector<TComponent, Dimension>& rangeMin,
+    const itk::CovariantVector<TComponent, Dimension>& rangeMax,
+    const Mask* const mask, const Mask::PixelType& maskValue,
+    const itk::ImageRegion<2>& maskRegion,
+    const bool allowOutside)
+{
+  assert(image);
+
+  typedef itk::Image<itk::CovariantVector<TComponent, Dimension>, 2> ImageType;
+
+  assert(numberOfBins > 0);
+
+  for(unsigned int i = 0; i < Dimension; ++i)
+  {
+    assert(rangeMax[i] > rangeMin[i]);
+  }
+
+  // Create the ND array
+  typedef int BinCounterType;
+  typedef boost::multi_array<BinCounterType, 3> array_type;
+
+  // Size the array, and make each component contain 'numberOfBinsPerDimension' values
+  typedef boost::array<size_t, 3> SizesType;
+  SizesType sizes;
+
+  for(SizesType::iterator it = sizes.begin(); it != sizes.end(); ++it)
+  {
+    *it = numberOfBinsPerDimension;
+  }
+
+  array_type ndHistogram(sizes);
+
+  // Count how many values fall in each bin. We store these counts as floats because sometimes we want to normalize the counts.
+  // std::cout << "Create histogram with " << numberOfBins << " bins." << std::endl;
+  HistogramType linearizedHistogram(numberOfBinsPerDimension * Dimension, 0);
+
+  std::vector<float> binWidths(Dimension);
+  for(unsigned int i = 0; i < Dimension; ++i)
+  {
+    binWidths[i] = (rangeMax[i] - rangeMin[i]) / static_cast<float>(numberOfBinsPerDimension);
+  }
+
+  // If the bins are not reasonably sized, return an all zero histogram
+  for(unsigned int i = 0; i < Dimension; ++i)
+  {
+    if(fabs(binWidths[i] - 0.0f) < 1e-6)
+    {
+      return linearizedHistogram;
+    }
+  }
+
+  itk::ImageRegionConstIterator<ImageType> imageIterator(image, region);
+
+  while(!imageIterator.IsAtEnd())
+  {
+    typename ImageType::PixelType pixelValue = imageIterator.Get();
+
+    typedef boost::array<size_t, Dimension> IndexType;
+    IndexType index;
+
+    for(unsigned int i = 0; i < Dimension; ++i)
+    {
+      index[i] = (pixelValue[i] - rangeMin[i]) / binWidths[i];
+    }
+
+    ndHistogram(index)++;
+
+//    if(bin < 0)
+//    {
+//      std::stringstream ss;
+//      ss << "ComputeImageJointChannelHistogram: Can't write to bin " << bin << "!" << std::endl;
+//      ss << "There are " << values.size() << " values." << std::endl;
+//      ss << "Range min " << static_cast<float>(rangeMin) << std::endl;
+//      ss << "Range max " << static_cast<float>(rangeMax) << std::endl;
+//      ss << "values[i] (i = " << i << ") = " << static_cast<float>(values[i]) << std::endl;
+//      ss << "binWidth " << binWidth << std::endl;
+//      throw std::runtime_error(ss.str());
+//    }
+//    else if(bin >= static_cast<int>(numberOfBins)) // There are only (numberOfBins - 1) indexes since the bin ids start at 0
+//    {
+//      std::stringstream ss;
+//      ss << "Can't write to bin " << bin << "!" << std::endl;
+//      ss << "There are " << values.size() << " values." << std::endl;
+//      ss << "Range min " << static_cast<float>(rangeMin) << std::endl;
+//      ss << "Range max " << static_cast<float>(rangeMax) << std::endl;
+//      ss << "values[i] (i = " << i << ") = " << static_cast<float>(values[i]) << std::endl;
+//      ss << "binWidth " << binWidth << std::endl;
+//      throw std::runtime_error(ss.str());
+//    }
+//    else // all is ok
+//    {
+//      bins[bin]++;
+//    }
+
+    ++imageIterator;
+  }
+
+  // Linearize the ND histogram
+  BinCounterType* dataPointer = ndHistogram.data();
+
+  for(unsigned int i = 0; i < ndHistogram.num_elements(); ++i)
+  {
+//    std::cout << *dataPointer << " ";
+    linearizedHistogram[i] = *dataPointer;
+    ++dataPointer;
+  }
+
+  return linearizedHistogram;
+}
 
 #endif

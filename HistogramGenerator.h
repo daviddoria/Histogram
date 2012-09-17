@@ -111,6 +111,19 @@ public:
   static HistogramType ScalarHistogramAllowOutside(const std::vector<TValue>& values, const unsigned int numberOfBins,
                                 const TValue& rangeMin, const TValue& rangeMax);
 
+  /** Compute the joint histogram of the channels of an itk::Image<CovariantVector>. Though the histogram is ND (where N is the number of channels),
+    * we output a 1D histogram (the ND histgram linearized in a "raster scan" order). If a 'mask' is provided, the pixels with corresponding pixels
+    * in 'mask' equal to 'maskValue' are the only ones used. */
+  template <typename TComponent, unsigned int Dimension>
+  static HistogramType ComputeImageJointChannelHistogram(
+      const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* image,
+      const itk::ImageRegion<2>& region,
+      const unsigned int numberOfBinsPerDimension,
+      const itk::CovariantVector<TComponent, Dimension>& rangeMin, const itk::CovariantVector<TComponent, Dimension>& rangeMax,
+      const Mask* const mask = 0, const Mask::PixelType& maskValue = 255,
+      const itk::ImageRegion<2>& maskRegion = itk::ImageRegion<2>(),
+      const bool allowOutside = false);
+
 }; // end class HistogramGenerator
 
 #include "HistogramGenerator.hpp"
