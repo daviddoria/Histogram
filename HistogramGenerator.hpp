@@ -322,7 +322,7 @@ typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType Histo
 
   typedef itk::Image<itk::CovariantVector<TComponent, Dimension>, 2> ImageType;
 
-  assert(numberOfBins > 0);
+  assert(numberOfBinsPerDimension > 0);
 
   for(unsigned int i = 0; i < Dimension; ++i)
   {
@@ -331,13 +331,13 @@ typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType Histo
 
   // Create the ND array
   typedef int BinCounterType;
-  typedef boost::multi_array<BinCounterType, 3> array_type;
+  typedef boost::multi_array<BinCounterType, Dimension> array_type;
 
   // Size the array, and make each component contain 'numberOfBinsPerDimension' values
-  typedef boost::array<size_t, 3> SizesType;
+  typedef boost::array<size_t, Dimension> SizesType;
   SizesType sizes;
 
-  for(SizesType::iterator it = sizes.begin(); it != sizes.end(); ++it)
+  for(typename SizesType::iterator it = sizes.begin(); it != sizes.end(); ++it)
   {
     *it = numberOfBinsPerDimension;
   }
@@ -346,12 +346,13 @@ typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType Histo
 
   // Count how many values fall in each bin. We store these counts as floats because sometimes we want to normalize the counts.
   // std::cout << "Create histogram with " << numberOfBins << " bins." << std::endl;
-  HistogramType linearizedHistogram(numberOfBinsPerDimension * Dimension, 0);
+  HistogramType linearizedHistogram(pow(numberOfBinsPerDimension, Dimension), 0);
 
   std::vector<float> binWidths(Dimension);
   for(unsigned int i = 0; i < Dimension; ++i)
   {
-    binWidths[i] = (rangeMax[i] - rangeMin[i]) / static_cast<float>(numberOfBinsPerDimension);
+    binWidths[i] = (static_cast<float>(rangeMax[i]) - static_cast<float>(rangeMin[i])) /
+        static_cast<float>(numberOfBinsPerDimension);
   }
 
   // If the bins are not reasonably sized, return an all zero histogram
@@ -359,14 +360,23 @@ typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType Histo
   {
     if(fabs(binWidths[i] - 0.0f) < 1e-6)
     {
-      return linearizedHistogram;
+      throw std::runtime_error("ComputeImageJointChannelHistogram: Bin widths are not reasonable!");
+//      return linearizedHistogram;
     }
   }
 
-  itk::ImageRegionConstIterator<ImageType> imageIterator(image, region);
+  itk::ImageRegionConstIteratorWithIndex<ImageType> imageIterator(image, region);
+  itk::ImageRegionConstIteratorWithIndex<Mask> maskIterator(mask, maskRegion);
 
   while(!imageIterator.IsAtEnd())
   {
+    if(maskIterator.Get() != maskValue)
+    {
+      ++imageIterator;
+      ++maskIterator;
+      continue;
+    }
+
     typename ImageType::PixelType pixelValue = imageIterator.Get();
 
     typedef boost::array<size_t, Dimension> IndexType;
@@ -377,6 +387,8 @@ typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType Histo
       index[i] = (pixelValue[i] - rangeMin[i]) / binWidths[i];
     }
 
+//    std::cout << "index: " << index[0] << " " << index[1] << " " << index[2] << std::endl;
+//    std::cout << "ndHistogram(index): " << ndHistogram(index) << std::endl;
     ndHistogram(index)++;
 
 //    if(bin < 0)
@@ -407,6 +419,7 @@ typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType Histo
 //    }
 
     ++imageIterator;
+    ++maskIterator;
   }
 
   // Linearize the ND histogram
@@ -414,7 +427,7 @@ typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType Histo
 
   for(unsigned int i = 0; i < ndHistogram.num_elements(); ++i)
   {
-//    std::cout << *dataPointer << " ";
+//    std::cout << "setting linear bin " << i << " to " << *dataPointer << std::endl;
     linearizedHistogram[i] = *dataPointer;
     ++dataPointer;
   }
