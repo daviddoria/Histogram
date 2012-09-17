@@ -52,12 +52,14 @@ public:
     Helpers::Output(*this);
   }
 
-  void PrintPadded()
+  void PrintPadded(const std::string histogramName = "")
   {
+    std::cout << histogramName << ": ";
     for(size_t i = 0; i < this->size(); ++i)
     {
-      std::cout << Helpers::ZeroPad(this->at(i), 3);
+      std::cout << Helpers::ZeroPad(this->at(i), 3) << " ";
     }
+    std::cout << std::endl;
   }
 
 };

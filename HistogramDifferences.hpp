@@ -170,8 +170,8 @@ namespace HistogramDifferences
       }
     }
 
-//    std::cout << "There are " << numberOfNewColorBins
-//              << " new occupied bins (numberOfPixelsWithNewColor = " << numberOfPixelsWithNewColor << ")." << std::endl;
+    std::cout << "There are " << numberOfNewColorBins
+              << " new occupied bins (numberOfPixelsWithNewColor = " << numberOfPixelsWithNewColor << ")." << std::endl;
 
     return numberOfPixelsWithNewColor;
   }
