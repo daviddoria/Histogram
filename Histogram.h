@@ -65,7 +65,7 @@ public:
 
   void Append(Histogram& histogram)
   {
-    std::copy(histogram.begin(), histogram.end(), this->end());
+    this->insert(this->end(), histogram.begin(), histogram.end());
   }
 
 };
