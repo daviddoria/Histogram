@@ -23,6 +23,7 @@
 #include <Helpers/Helpers.h>
 
 // STL
+#include <algorithm>
 #include <vector>
 
 /** This class is a simple wrapper around std::vector to give it functions
@@ -60,6 +61,11 @@ public:
       std::cout << Helpers::ZeroPad(this->at(i), 3) << " ";
     }
     std::cout << std::endl;
+  }
+
+  void Append(Histogram& histogram)
+  {
+    std::copy(histogram.begin(), histogram.end(), this->end());
   }
 
 };
