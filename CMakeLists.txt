@@ -3,11 +3,9 @@ cmake_minimum_required(VERSION 2.8)
 project(Histogram)
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# This is needed for shared_ptr and the trick using enable_if and
-# if_fundamental to allow scalars
-# to be treated as the 0th component of a vector.
+# Enable c++11
 if(UNIX)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 endif(UNIX)
 
 # ITK
@@ -49,7 +47,13 @@ set_property(GLOBAL PROPERTY HistogramIncludeDirs ${Histogram_include_dirs})
 set_property(GLOBAL PROPERTY HistogramLibs ${Histogram_libraries})
 
 # Build the tests if requested
-SET(Histogram_BuildTests OFF CACHE BOOL "Build Histogram tests?")
+option(Histogram_BuildTests "Build Histogram tests?" OFF)
 if(Histogram_BuildTests)
   add_subdirectory(Tests)
 endif(Histogram_BuildTests)
+
+# Display where this code was used from (if it is used as a submodule, there may be multiple instances of this submodule in the project, only the first of which is used)
+option(Histogram_ShowSubmoduleLocation "Show the path from which Histogram was used?" OFF)
+if(Histogram_ShowSubmoduleLocation)
+  message("Histogram used from ${CMAKE_CURRENT_SOURCE_DIR}")
+endif(Histogram_ShowSubmoduleLocation)
