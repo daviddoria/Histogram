@@ -16,10 +16,10 @@
  *
  *=========================================================================*/
 
-#ifndef HISTOGRAM_HPP
-#define HISTOGRAM_HPP
+#ifndef HistogramGenerator_HPP
+#define HistogramGenerator_HPP
 
-#include "Histogram.h"
+#include "HistogramGenerator.h"
 
 // STL
 #include <numeric> // for 'accumulate'
@@ -39,7 +39,8 @@
 
 template <typename TBinValue, typename TQuadrantProperties>
 template <typename TImage>
-typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType HistogramGenerator<TBinValue, TQuadrantProperties>::ComputeScalarImageHistogram(
+typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType
+HistogramGenerator<TBinValue, TQuadrantProperties>::ComputeScalarImageHistogram(
     const TImage* image,
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
