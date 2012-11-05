@@ -53,6 +53,11 @@ public:
     Helpers::Output(*this);
   }
 
+  void Write(const std::string& fileName)
+  {
+    Helpers::WriteVectorToFile(*this, fileName);
+  }
+
   void PrintPadded(const std::string histogramName = "")
   {
     std::cout << histogramName << ": ";
