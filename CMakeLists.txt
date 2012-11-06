@@ -27,6 +27,17 @@ set(Histogram_include_dirs ${Histogram_include_dirs} ${ITKHelpersIncludeDirs})
 get_property(ITKHelpersLibs GLOBAL PROPERTY ITKHelpersLibs)
 set(Histogram_libraries ${Histogram_libraries} ${ITKHelpersLibs})
 
+# Only include Mask if it is not already available
+get_property(FoundMask GLOBAL PROPERTY MaskIncludeDirs SET)
+if(NOT FoundMask)
+  add_subdirectory(Mask)
+endif()
+
+get_property(MaskIncludeDirs GLOBAL PROPERTY MaskIncludeDirs)
+set(Histogram_include_dirs ${Histogram_include_dirs} ${MaskIncludeDirs})
+get_property(MaskLibs GLOBAL PROPERTY MaskLibs)
+set(Histogram_libraries ${Histogram_libraries} ${MaskLibs})
+
 # Give the compiler all of the required include directories
 include_directories(${Histogram_include_dirs})
 

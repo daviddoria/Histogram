@@ -16,7 +16,7 @@
  *
  *=========================================================================*/
 
-#include "MaskedHistogram.h"
+#include "MaskedHistogramGenerator.h"
 
 // ITK
 #include "itkImage.h"
@@ -102,28 +102,36 @@ void TestComputeMaskedImage1DHistogram()
    itk::ImageRegionIterator<ImageType> imageIterator(image,region);
 
    while(!imageIterator.IsAtEnd())
-     {
+   {
      ImageType::PixelType pixel(image->GetNumberOfComponentsPerPixel());
      if(imageIterator.GetIndex()[0] < 70)
-       {
+     {
        for(unsigned int i = 0; i < pixel.GetSize(); ++i)
-         {
+       {
          pixel[i] = 255;
-         }
        }
+     }
      else
-       {
+     {
        for(unsigned int i = 0; i < pixel.GetSize(); ++i)
-         {
+       {
          pixel[i] = 0;
-         }
        }
+     }
      imageIterator.Set(pixel);
      ++imageIterator;
-     }
+   }
 
-   TypeTraits<ImageType::PixelType>::ComponentType rangeMin = 0;
-   TypeTraits<ImageType::PixelType>::ComponentType rangeMax = 255;
+//   TypeTraits<ImageType::PixelType>::ComponentType rangeMin = 0;
+//   TypeTraits<ImageType::PixelType>::ComponentType rangeMax = 255;
+
+   ImageType::PixelType rangeMins;
+   rangeMins.SetSize(image->GetNumberOfComponentsPerPixel());
+   rangeMins.Fill(0);
+
+   ImageType::PixelType rangeMaxs;
+   rangeMaxs.SetSize(image->GetNumberOfComponentsPerPixel());
+   rangeMaxs.Fill(255);
 
    unsigned int numberOfBinsPerComponent = 10;
    typedef int BinValueType;
@@ -131,12 +139,18 @@ void TestComputeMaskedImage1DHistogram()
    itk::ImageRegion<2> imageRegion = image->GetLargestPossibleRegion();
    itk::ImageRegion<2> maskRegion = image->GetLargestPossibleRegion();
 
-   Histogram<BinValueType>::HistogramType histogram =
-       MaskedHistogram::ComputeMaskedImage1DHistogram(image.GetPointer(), imageRegion,
-                                                      mask.GetPointer(), maskRegion,
-                                                      numberOfBinsPerComponent, rangeMin, rangeMax);
+   typedef MaskedHistogramGenerator<BinValueType> HistogramGeneratorType;
+   typedef HistogramGeneratorType::HistogramType HistogramType;
 
-   Histogram<BinValueType>::OutputHistogram(histogram);
+   bool allowOutside = false;
+   unsigned char maskValue = mask->GetValidValue();
+   HistogramType histogram =
+       HistogramGeneratorType::ComputeMaskedImage1DHistogram(image.GetPointer(), imageRegion,
+                                                      mask.GetPointer(), maskRegion,
+                                                      numberOfBinsPerComponent, rangeMins, rangeMaxs,
+                                                      allowOutside, maskValue);
+
+   histogram.Print();
    std::cout << std::endl;
    }
 

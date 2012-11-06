@@ -29,7 +29,8 @@
 #include "itkVectorImage.h"
 
 // Submodules
-#include "Helpers/TypeTraits.h"
+#include <Helpers/TypeTraits.h>
+#include <Mask/Mask.h>
 
 #include "Histogram.h"
 #include "QuadrantHistogram.h"

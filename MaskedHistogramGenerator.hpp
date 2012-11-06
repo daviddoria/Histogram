@@ -66,11 +66,13 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType
     HistogramType histogram;
     if(allowOutside)
     {
-      histogram = HistogramGeneratorType::ScalarHistogramAllowOutside(validPixels, numberOfBinsPerDimension, rangeMins[channel], rangeMaxs[channel]);
+      histogram = HistogramGeneratorType::ScalarHistogramAllowOutside(validPixels, numberOfBinsPerDimension,
+                                                                      rangeMins[channel], rangeMaxs[channel]);
     }
     else
     {
-      histogram = HistogramGeneratorType::ScalarHistogram(validPixels, numberOfBinsPerDimension, rangeMins[channel], rangeMaxs[channel]);
+      histogram = HistogramGeneratorType::ScalarHistogram(validPixels, numberOfBinsPerDimension,
+                                                          rangeMins[channel], rangeMaxs[channel]);
     }
     concatenatedHistograms.insert(concatenatedHistograms.end(), histogram.begin(), histogram.end());
   }

@@ -16,7 +16,8 @@
  *
  *=========================================================================*/
 
-#include "Histogram.h"
+#include "HistogramGenerator.h"
+#include "HistogramDifferences.hpp"
 
 // ITK
 #include "itkImage.h"
@@ -70,6 +71,9 @@ int main()
 
   float totalDifference = 0;
   
+  typedef HistogramGenerator<BinValueType> HistogramGeneratorType;
+  typedef HistogramGeneratorType::HistogramType HistogramType;
+
   for(unsigned int i = 0; i < 10000; ++i)
   {
     // I'm not sure why the *2's are necessary... but it was creating patches outside of the image without them
@@ -81,15 +85,15 @@ int main()
                              rand() % (imageWidth - patchRadius*2 - 1) + patchRadius}};
     itk::ImageRegion<2> region2 = ITKHelpers::GetRegionInRadiusAroundPixel(center2, patchRadius);
     
-    Histogram<BinValueType>::HistogramType histogram1 = Histogram<BinValueType>::ComputeImageHistogram1D(image.GetPointer(),
+    HistogramType histogram1 = HistogramGeneratorType::ComputeImageHistogram1D(image.GetPointer(),
                                                          region1,
                                                          numberOfBinsPerComponent, rangeMin, rangeMax);
 
-    Histogram<BinValueType>::HistogramType histogram2 = Histogram<BinValueType>::ComputeImageHistogram1D(image.GetPointer(),
+    HistogramType histogram2 = HistogramGeneratorType::ComputeImageHistogram1D(image.GetPointer(),
                                                          region2,
                                                          numberOfBinsPerComponent, rangeMin, rangeMax);
 
-    float difference = Histogram<BinValueType>::HistogramDifference(histogram1, histogram2);
+    float difference = HistogramDifferences::HistogramDifference(histogram1, histogram2);
     totalDifference += difference;
   }
 

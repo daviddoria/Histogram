@@ -16,7 +16,8 @@
  *
  *=========================================================================*/
 
-#include "Histogram.h"
+#include "HistogramGenerator.h"
+#include "HistogramDifferences.hpp"
 
 // ITK
 #include "itkImage.h"
@@ -85,13 +86,14 @@ void TestCompute1DConcatenatedHistogramOfMultiChannelImage()
 
   unsigned int numberOfBins = 10;
   typedef int BinValueType;
-  typedef Histogram<BinValueType>::HistogramType HistogramType;
+  typedef HistogramGenerator<BinValueType> HistogramGeneratorType;
+  typedef HistogramGeneratorType::HistogramType HistogramType;
 
-  HistogramType histogram = Histogram<BinValueType>::ComputeImageHistogram1D(image.GetPointer(),
+  HistogramType histogram = HistogramGeneratorType::ComputeImageHistogram1D(image.GetPointer(),
                                                          image->GetLargestPossibleRegion(),
                                                          numberOfBins, rangeMin, rangeMax);
 
-  Histogram<BinValueType>::OutputHistogram(histogram);
+  histogram.Print();
   std::cout << std::endl;
   }
 
@@ -186,11 +188,13 @@ void TestCompute1DConcatenatedHistogramOfMultiChannelImage()
 
   unsigned int numberOfBinsPerComponent = 10;
   typedef int BinValueType;
-  Histogram<BinValueType>::HistogramType histogram = Histogram<BinValueType>::ComputeImageHistogram1D(image.GetPointer(),
+  typedef HistogramGenerator<BinValueType> HistogramGeneratorType;
+  typedef HistogramGeneratorType::HistogramType HistogramType;
+  HistogramType histogram = HistogramGeneratorType::ComputeImageHistogram1D(image.GetPointer(),
                                                          image->GetLargestPossibleRegion(),
                                                          numberOfBinsPerComponent, rangeMin, rangeMax);
 
-  Histogram<BinValueType>::OutputHistogram(histogram);
+  histogram.Print();
   std::cout << std::endl;
   }
 }
@@ -208,26 +212,30 @@ void TestScalarHistogram()
   ValueType rangeMax = 4.0f;
 
   typedef int BinValueType;
-  Histogram<BinValueType>::HistogramType histogram = Histogram<BinValueType>::ScalarHistogram(values, numberOfBins,
+  typedef HistogramGenerator<BinValueType> HistogramGeneratorType;
+  typedef HistogramGeneratorType::HistogramType HistogramType;
+  HistogramType histogram = HistogramGeneratorType::ScalarHistogram(values, numberOfBins,
                                                             rangeMin, rangeMax);
 
-  Histogram<BinValueType>::OutputHistogram(histogram);
+  histogram.Print();
   std::cout << std::endl;
 }
 
 void TestHistogramDifference()
 {
   typedef int BinValueType;
-  Histogram<BinValueType>::HistogramType histogram1;
+  typedef Histogram<BinValueType> HistogramType;
+
+  HistogramType histogram1;
   histogram1.push_back(1);
   histogram1.push_back(2);
   histogram1.push_back(3);
 
-  Histogram<BinValueType>::HistogramType histogram2;
+  HistogramType histogram2;
   histogram2.push_back(1);
   histogram2.push_back(2);
   histogram2.push_back(4);
-  float difference = Histogram<BinValueType>::HistogramDifference(histogram1, histogram2);
+  float difference = HistogramDifferences::HistogramDifference(histogram1, histogram2);
 
   std::cout << "difference: " << difference << std::endl;
 }
@@ -235,16 +243,17 @@ void TestHistogramDifference()
 void TestHistogramIntersection()
 {
   typedef int BinValueType;
-  Histogram<BinValueType>::HistogramType histogram1;
+  typedef Histogram<BinValueType> HistogramType;
+  HistogramType histogram1;
   histogram1.push_back(1);
   histogram1.push_back(2);
   histogram1.push_back(3);
 
-  Histogram<BinValueType>::HistogramType histogram2;
+  HistogramType histogram2;
   histogram2.push_back(1);
   histogram2.push_back(2);
   histogram2.push_back(4);
-  float intersection = Histogram<BinValueType>::HistogramIntersection(histogram1, histogram2);
+  float intersection = HistogramDifferences::HistogramIntersection(histogram1, histogram2);
 
   std::cout << "intersection: " << intersection << std::endl;
 }
@@ -252,21 +261,23 @@ void TestHistogramIntersection()
 void TestWriteHistogram()
 {
   typedef int BinValueType;
-  Histogram<BinValueType>::HistogramType histogram;
+  typedef Histogram<BinValueType> HistogramType;
+  HistogramType histogram;
   histogram.push_back(1);
   histogram.push_back(2);
   histogram.push_back(3);
 
-  Histogram<BinValueType>::WriteHistogram(histogram, "histogram.txt");
+  histogram.Write("histogram.txt");
 }
 
 void TestOutputHistogram()
 {
   typedef int BinValueType;
-  Histogram<BinValueType>::HistogramType histogram;
+  typedef Histogram<BinValueType> HistogramType;
+  HistogramType histogram;
   histogram.push_back(1);
   histogram.push_back(2);
   histogram.push_back(3);
 
-  Histogram<BinValueType>::OutputHistogram(histogram);
+  histogram.Print();
 }
