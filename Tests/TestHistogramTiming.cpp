@@ -77,12 +77,14 @@ int main()
   for(unsigned int i = 0; i < 10000; ++i)
   {
     // I'm not sure why the *2's are necessary... but it was creating patches outside of the image without them
-    itk::Index<2> center1 = {{rand() % (imageWidth - patchRadius*2 - 1) + patchRadius,
-                             rand() % (imageWidth - patchRadius*2 - 1) + patchRadius}};
+    int center1x = rand() % (imageWidth - patchRadius*2 - 1) + patchRadius;
+    int center1y = rand() % (imageWidth - patchRadius*2 - 1) + patchRadius;
+    itk::Index<2> center1 = {{center1x, center1y}};
     itk::ImageRegion<2> region1 = ITKHelpers::GetRegionInRadiusAroundPixel(center1, patchRadius);
 
-    itk::Index<2> center2 = {{rand() % (imageWidth - patchRadius*2 - 1) + patchRadius,
-                             rand() % (imageWidth - patchRadius*2 - 1) + patchRadius}};
+    int center2x = rand() % (imageWidth - patchRadius*2 - 1) + patchRadius;
+    int center2y = rand() % (imageWidth - patchRadius*2 - 1) + patchRadius;
+    itk::Index<2> center2 = {{center2x, center2y}};
     itk::ImageRegion<2> region2 = ITKHelpers::GetRegionInRadiusAroundPixel(center2, patchRadius);
     
     HistogramType histogram1 = HistogramGeneratorType::ComputeImageHistogram1D(image.GetPointer(),

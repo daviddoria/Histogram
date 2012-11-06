@@ -12,4 +12,7 @@ target_link_libraries(TestMaskedHistogram ${Histogram_libraries})
 add_executable(TestHistogramTiming TestHistogramTiming.cpp)
 target_link_libraries(TestHistogramTiming ${Histogram_libraries})
 
+add_executable(TestHistogramOfAdaptor TestHistogramOfAdaptor.cpp)
+target_link_libraries(TestHistogramOfAdaptor ${Histogram_libraries})
+
 message("Histogram_libraries in Histogram/Tests is ${Histogram_libraries}")
