@@ -41,7 +41,7 @@ template <typename TBinValue, typename TQuadrantProperties>
 template <typename TImage>
 typename HistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType
 HistogramGenerator<TBinValue, TQuadrantProperties>::ComputeScalarImageHistogram(
-    const TImage* image,
+    const TImage* const image,
     const itk::ImageRegion<2>& region,
     const unsigned int numberOfBinsPerDimensions,
     const typename TypeTraits<typename TImage::PixelType>::ComponentType& rangeMin,
@@ -50,6 +50,9 @@ HistogramGenerator<TBinValue, TQuadrantProperties>::ComputeScalarImageHistogram(
 {
   // Compute the histogram for each channel separately
   HistogramType concatenatedHistograms;
+
+//  std::cout << "ComputeScalarImageHistogram has " << image->GetNumberOfComponentsPerPixel()
+//            << " components per pixel." << std::endl;
 
   for(unsigned int channel = 0; channel < image->GetNumberOfComponentsPerPixel(); ++channel)
   {
