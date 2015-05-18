@@ -1,6 +1,6 @@
-[submodule "Mask"]
-	path = Mask
-	url = ../Mask.git
 [submodule "CMakeHelpers"]
 	path = CMakeHelpers
 	url = ../CMakeHelpers.git
+[submodule "Mask"]
+	path = Mask
+	url = https://github.com/daviddoria/Mask.git
