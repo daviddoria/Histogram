@@ -14,11 +14,11 @@ endif(UNIX)
 if(NOT ITK_FOUND)
   FIND_PACKAGE(ITK REQUIRED ITKCommon ITKIOImageBase ITKIOPNG ITKIOMeta
                             ITKImageIntensity ITKImageFeature ITKMathematicalMorphology
-                            ITKBinaryMathematicalMorphology)
+                            ITKBinaryMathematicalMorphology ITKDistanceMap)
   INCLUDE(${ITK_USE_FILE})
 endif()
 
-UseSubmodule(ITKHelpers Histogram)
+UseSubmodule(Mask Histogram)
 
 CreateSubmodule(Histogram)
 

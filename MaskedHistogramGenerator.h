@@ -21,6 +21,8 @@
 
 #include "HistogramGenerator.h"
 
+#include "Mask/Mask.h"
+
 // STL
 #include <vector>
 
@@ -54,7 +56,7 @@ public:
        const TRangeContainer& rangeMins,
        const TRangeContainer& rangeMaxs,
        const bool allowOutside,
-       const unsigned char maskValue);
+       const HoleMaskPixelTypeEnum& maskValue);
 
   /** This function computes the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image.
     * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
@@ -63,7 +65,7 @@ public:
   static HistogramType ComputeMaskedImage1DHistogram
       (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
        const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
-       const TRangeContainer& rangeMins, const TRangeContainer& rangeMaxs, const bool allowOutside, const unsigned char maskValue);
+       const TRangeContainer& rangeMins, const TRangeContainer& rangeMaxs, const bool allowOutside, const HoleMaskPixelTypeEnum& maskValue);
 
   /** This function computes the histogram of valid/hole (specified by 'maskValue') pixels (according to 'mask') in an image.
     * The 'maskRegion' is not necessarily the same as the 'imageRegion', as we may want to apply
@@ -72,7 +74,7 @@ public:
   static HistogramType ComputeMaskedScalarImageHistogram
       (const TImage* const image, const itk::ImageRegion<2>& imageRegion,
        const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
-       const TRangeValue& rangeMin, const TRangeValue& rangeMax, const bool allowOutside, const unsigned char maskValue);
+       const TRangeValue& rangeMin, const TRangeValue& rangeMax, const bool allowOutside, const HoleMaskPixelTypeEnum& maskValue);
 
   /** This function computes and concatenates the histogram of valid/hole (specified by 'maskValue') pixels
     * (according to 'mask') in an image in each of the 4 quadrants using an adaptive range for each channel of each quadrant.
@@ -92,7 +94,7 @@ public:
       (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, itk::ImageRegion<2> imageRegion,
        const Mask* const mask, itk::ImageRegion<2> maskRegion,
        QuadrantHistogramProperties<itk::CovariantVector<TComponent, Dimension> > quadrantHistogramProperties,
-       const bool useProvidedRanges, const unsigned char maskValue);
+       const bool useProvidedRanges, const HoleMaskPixelTypeEnum& maskValue);
 
 }; // end class MaskedHistogramGenerator
 

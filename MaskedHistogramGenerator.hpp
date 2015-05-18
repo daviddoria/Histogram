@@ -30,7 +30,7 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType
                 const itk::ImageRegion<2>& maskRegion,
                 const unsigned int numberOfBinsPerDimension,
                 const TRangeContainer& rangeMins,
-                const TRangeContainer& rangeMaxs, const bool allowOutside, const unsigned char maskValue)
+                const TRangeContainer& rangeMaxs, const bool allowOutside, const HoleMaskPixelTypeEnum& maskValue)
 {
   // For VectorImage, we must use VectorImageToImageAdaptor
 
@@ -85,7 +85,7 @@ template <typename TComponent, unsigned int Dimension, typename TRangeContainer>
 typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::ComputeMaskedImage1DHistogram
     (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, const itk::ImageRegion<2>& imageRegion,
      const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBinsPerDimension,
-     const TRangeContainer& rangeMins, const TRangeContainer& rangeMaxs, const bool allowOutside, const unsigned char maskValue)
+     const TRangeContainer& rangeMins, const TRangeContainer& rangeMaxs, const bool allowOutside, const HoleMaskPixelTypeEnum& maskValue)
 {
   // For Image<CovariantVector>, we must use NthElementImageAdaptor
 
@@ -139,7 +139,7 @@ template <typename TImage, typename TRangeValue>
 typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::HistogramType MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::ComputeMaskedScalarImageHistogram
     (const TImage* const image, const itk::ImageRegion<2>& imageRegion,
      const Mask* const mask, const itk::ImageRegion<2>& maskRegion, const unsigned int numberOfBins,
-     const TRangeValue& rangeMin, const TRangeValue& rangeMax, const bool allowOutside, const unsigned char maskValue)
+     const TRangeValue& rangeMin, const TRangeValue& rangeMax, const bool allowOutside, const HoleMaskPixelTypeEnum& maskValue)
 {
   std::vector<itk::Index<2> > maskIndices = ITKHelpers::GetPixelsWithValueInRegion(mask, maskRegion, maskValue);
 
@@ -176,7 +176,7 @@ typename MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::QuadrantHisto
 MaskedHistogramGenerator<TBinValue, TQuadrantProperties>::ComputeQuadrantMaskedImage1DHistogramAdaptive
     (const itk::Image<itk::CovariantVector<TComponent, Dimension>, 2>* const image, itk::ImageRegion<2> imageRegion,
      const Mask* const mask, itk::ImageRegion<2> maskRegion, QuadrantHistogramProperties<itk::CovariantVector<TComponent, Dimension> > quadrantHistogramProperties,
-     const bool useProvidedRanges, const unsigned char maskValue)
+     const bool useProvidedRanges, const HoleMaskPixelTypeEnum& maskValue)
 {
   // Crop the regions
   imageRegion = ITKHelpers::CropRegionAtPosition(imageRegion, image->GetLargestPossibleRegion(), maskRegion);

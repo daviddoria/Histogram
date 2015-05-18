@@ -143,12 +143,12 @@ void TestComputeMaskedImage1DHistogram()
    typedef HistogramGeneratorType::HistogramType HistogramType;
 
    bool allowOutside = false;
-   unsigned char maskValue = mask->GetValidValue();
+
    HistogramType histogram =
        HistogramGeneratorType::ComputeMaskedImage1DHistogram(image.GetPointer(), imageRegion,
                                                       mask.GetPointer(), maskRegion,
                                                       numberOfBinsPerComponent, rangeMins, rangeMaxs,
-                                                      allowOutside, maskValue);
+                                                      allowOutside, HoleMaskPixelTypeEnum::VALID);
 
    histogram.Print();
    std::cout << std::endl;
